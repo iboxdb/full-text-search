@@ -16,7 +16,7 @@ public class MainClass {
         
       System.out.println(  DB.toString(new KeyWord()));
       
-      for(short s =0 ; s<=2000; s ++){
+      for(short s =0 ; s<=128; s ++){
           System.out.print((char)s);
       }
     }

@@ -8,8 +8,8 @@ public class KeyWord {
 
     public final static int MAX_WORD_LENGTH = 16;
 
-    public static void config(DatabaseConfig c, long cacheLength) {
-        c.CacheLength = cacheLength;
+    public static void config(DatabaseConfig c) {
+   
 
         // English Language or Word (max=16)              
         c.EnsureTable(KeyWord.class, "E", "K(" + MAX_WORD_LENGTH + ")", "R", "I");
