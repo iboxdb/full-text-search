@@ -14,22 +14,21 @@ import iBoxDB.LocalServer.Replication.*;
 import iBoxDB.JDB.Example.Server.*;
 import iBoxDB.JDB.Example.Server.Package;
 
-
-
+// PC: DB.root("/tmp/");
+// Android: initAndroid("com.example.fapp");
+// --
+// System.out.println(iBoxDB.JDB.run());
 public class JDB {
 
 	private static boolean isAndroid = false;
 
-	// com.example.fapp
-//	public static void initAndroid(String packageName) {
-//		isAndroid = true;
-//		BoxFileStreamConfig.RootPath = android.os.Environment
-//				.getDataDirectory().getAbsolutePath()
-//				+ "/data/"
-//				+ packageName
-//				+ "/";
-//	}
-
+/*
+	public static void initAndroid(String packageName) {
+		isAndroid = true;
+		DB.root(android.os.Environment.getDataDirectory().getAbsolutePath()
+				+ "/data/" + packageName + "/");
+	}
+*/
 	public static String run() {
 		return run(false);
 	}
@@ -84,19 +83,22 @@ public class JDB {
 				DB db = new DB(1, "");
 				db.getConfig().ensureTable("Table", Record.class, "ID");
 
-				AutoBox box = db.open();
+				AutoBox auto = db.open();
 
-				box.insert("Table", new Record(1, "Andy"));
-				Record o1 = box.selectKey(Record.class, "Table", 1);
+				auto.insert("Table", new Record(1, "Andy"));
+				Record o1 = auto.selectKey(Record.class, "Table", 1);
 
 				sb.append("Name1 " + o1.Name + "\r\n");
 
 				o1.Name = "Kelly";
-				box.update("Table", o1);
+				auto.update("Table", o1);
 				o1 = null;
-				Record o2 = box.selectKey(Record.class, "Table", 1);
+				// Record o2 = box.selectKey(Record.class, "Table", 1);
+				// selectKey() equals d().select();
+				Record o2 = auto.d("Table", 1).select(Record.class);
 
 				sb.append("Name2 " + o2.Name + "\r\n");
+
 				db.close();
 			} catch (Exception ex) {
 				sb.append(ex.toString() + "\r\n");
@@ -121,7 +123,7 @@ public class JDB {
 				try {
 					Database db = server.getInstance();
 					try {
-						// java7 try( Box box = db.cube() ){ }
+						// java7+ try( Box box = db.cube() ){ }
 						Box box = db.cube();
 						try {
 
@@ -154,7 +156,9 @@ public class JDB {
 							game.Name("MoonFlight");
 
 							game.put("GameType", "ACT");
-							box.bind("Product").insert(game);
+							// box.bind("Product").insert(game);
+							// bind() equals d();
+							box.d("Product").insert(game);
 
 							CommitResult cr = box.commit();
 							// check result: if ( cr.equals(CommitResult.OK) ){
@@ -210,19 +214,21 @@ public class JDB {
 						} finally {
 							box.close();
 						}
-						
-						try( Box box1 = db.cube()) {
+						box = db.cube();
+						try {
 							// Custom QueryFunction
 							// [] <= call IFunction Interface
 							// [A,B] <= Fields will be passed
-							Iterable<Member> list = box1.select(Member.class,
+							Iterable<Member> list = box.select(Member.class,
 									"from Member where [Tags]", new QueryArray(
 											"Strong"));
 							sb.append("The (Strong) one is ");
 							for (Member m : list) {
 								sb.append("'" + m.getName() + "'\r\n");
 							}
-						}  
+						} finally {
+							box.close();
+						}
 					} finally {
 						db.close();
 					}

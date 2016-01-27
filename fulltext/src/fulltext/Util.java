@@ -8,9 +8,7 @@ public class Util {
     public LinkedHashMap<Short, KeyWord> fromString(long id, char[] str) {
 
         LinkedHashMap<Short, KeyWord> kws = new LinkedHashMap<Short, KeyWord>();
-        if (str.length > 1000) {
-            return kws;
-        }
+      
         KeyWord k = null;
         for (int i = 0; i < str.length; i++) {
             char c = str[i];

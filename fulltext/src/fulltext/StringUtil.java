@@ -28,6 +28,6 @@ public class StringUtil {
     public String[] searchSplit(String str){ 
         
         String[] ss = str.trim().replaceAll(" ", " ").split(" ");
-        
+        return null;
     }
 }
