@@ -11,8 +11,7 @@ public class KeyWord {
     public static void config(DatabaseConfig c) {
 
         // English Language or Word (max=16)              
-        c.EnsureTable(KeyWord.class, "E", "K(" + MAX_WORD_LENGTH + ")", "R", "I");
-        c.EnsureIndex(KeyWord.class, "E", "I", "K(" + MAX_WORD_LENGTH + ")");
+        c.EnsureTable(KeyWord.class, "E", "K(" + MAX_WORD_LENGTH + ")", "I");
 
         // Non-English Language or Character
         c.EnsureTable(KeyWord.class, "N", "K(1)", "I", "P");
@@ -32,29 +31,16 @@ public class KeyWord {
         K = k;
     }
 
-    //Rank
-    public short R;
-
-    @NotColumn
-    public short getRank() {
-        return R;
-    }
-
-    @NotColumn
-    public void setRank(short r) {
-        R = r;
-    }
-
     //Position
-    public short P;
+    public int P;
 
     @NotColumn
-    public short getPosition() {
+    public int getPosition() {
         return P;
     }
 
     @NotColumn
-    public void setPosition(short p) {
+    public void setPosition(int p) {
         P = p;
     }
 
@@ -73,9 +59,15 @@ public class KeyWord {
 
     @NotColumn
     public boolean isWord;
+    @NotColumn
+    public KeyWord previous;
 
     @Override
     public String toString() {
-        return K + ", Pos=" + P + ", Rank=" + R + ", ID=" + I + " IsWord=" + isWord;
+        return K + ", Pos=" + P + ", ID=" + I + " " + (isWord ? "1" : "0");
+    }
+
+    public String Print() {
+        return (previous != null ? previous.Print() + " -> " : "") + toString();
     }
 }

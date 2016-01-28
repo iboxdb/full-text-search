@@ -5,12 +5,13 @@ import java.util.*;
 public class StringUtil {
 
     public static StringUtil T = new StringUtil();
-    
+
     HashSet<Character> set;
 
     public StringUtil() {
         String s = "!\"#$%&'()*+,./:;<=>?[\\]^_`{|}~\r\n"; //@-
-        s += "， ，《。》、？；：‘’“”【｛】｝——=+、｜·～！#￥%……&*（）"; //@-
+        s += "， 　，《。》、？；：‘’“”【｛】｝——=+、｜·～！#￥%……&*（）"; //@-
+        s += "｀～！＠＃￥％……—×（）——＋－＝【】｛｝：；’＇”＂，．／＜＞？’‘”“";
         set = new HashSet<Character>();
         for (char c : s.toCharArray()) {
             set.add(c);
@@ -37,9 +38,4 @@ public class StringUtil {
         return cs;
     }
 
-    public String[] searchSplit(String str) {
-
-        String[] ss = str.trim().replaceAll(" ", " ").split(" ");
-        return null;
-    }
 }
