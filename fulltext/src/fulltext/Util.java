@@ -8,7 +8,7 @@ public class Util {
     public LinkedHashMap<Short, KeyWord> fromString(long id, char[] str) {
 
         LinkedHashMap<Short, KeyWord> kws = new LinkedHashMap<Short, KeyWord>();
-      
+
         KeyWord k = null;
         for (int i = 0; i < str.length; i++) {
             char c = str[i];
@@ -16,13 +16,13 @@ public class Util {
                 if (k != null && k.getKeyWord().length() <= KeyWord.MAX_WORD_LENGTH) {
                     kws.put(k.getPosition(), k);
                 }
-                k = new KeyWord();
-                k.setKeyWord(" ");
-                k.setPosition((short) i);
-                kws.put(k.getPosition(), k);
+//                k = new KeyWord();
+//                k.setKeyWord(" ");
+//                k.setPosition((short) i);
+//                kws.put(k.getPosition(), k);
                 k = null;
-            } else if (c >= 'a' && c <= 'z') {
-                if (k == null) {
+            } else if (StringUtil.T.isWord(c)) {
+                if (k == null && c != '-' && c != '@') {
                     k = new KeyWord();
                     k.isWord = true;
                     k.setID(id);
@@ -30,7 +30,9 @@ public class Util {
                     k.setKeyWord("");
                     k.setPosition((short) i);
                 }
-                k.setKeyWord(k.getKeyWord() + Character.toString(c));
+                if (k != null) {
+                    k.setKeyWord(k.getKeyWord() + Character.toString(c));
+                }
             } else {
                 if (k != null && k.getKeyWord().length() <= KeyWord.MAX_WORD_LENGTH) {
                     kws.put(k.getPosition(), k);
@@ -42,32 +44,35 @@ public class Util {
                 k.setKeyWord(Character.toString(c));
                 k.setPosition((short) i);
                 kws.put(k.getPosition(), k);
+                k = null;
             }
         }
 
         return kws;
     }
 
-    private String[] fixedKeywords = new String[]{"java", "c#", "iboxdb", "nosql", "database", "数据库"};
-
-    public LinkedHashMap<Short, KeyWord> getFixedKeyWord(long id, String str) {
+    public LinkedHashMap<Short, KeyWord> getFixedKeyWord(long id, String str,
+            String[] fixedKeywords) {
         LinkedHashMap<Short, KeyWord> kws = new LinkedHashMap<Short, KeyWord>();
-        for (String s : fixedKeywords) {
-            if (s.length() > KeyWord.MAX_WORD_LENGTH) {
-                continue;
-            }
-            int p = str.indexOf(s);
-            if (p > -1) {
-                KeyWord k = new KeyWord();
-                k.isWord = true;
-                k.setID(id);
-                k.setRank((short) 10);
-                k.setKeyWord(s);
-                k.setPosition((short) p);
-                kws.put(k.getPosition(), k);
+        if (fixedKeywords != null && fixedKeywords.length > 0) {
+            str = str.toLowerCase();
+            for (String s : fixedKeywords) {
+                if (s.length() > KeyWord.MAX_WORD_LENGTH) {
+                    continue;
+                }
+                String sl = s.toLowerCase();
+                int p = str.indexOf(sl);
+                if (p > -1) {
+                    KeyWord k = new KeyWord();
+                    k.isWord = true;
+                    k.setID(id);
+                    k.setRank((short) 10);
+                    k.setKeyWord(sl);
+                    k.setPosition((short) p);
+                    kws.put(k.getPosition(), k);
+                }
             }
         }
-
         return kws;
     }
 

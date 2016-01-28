@@ -1,7 +1,7 @@
 //Free
 package fulltext;
 
-import iBoxDB.LocalServer.*; 
+import iBoxDB.LocalServer.*;
 import java.util.*;
 
 public class Engine {
@@ -13,32 +13,49 @@ public class Engine {
         KeyWord.config(config);
     }
 
-    public boolean addText(AutoBox auto, long id, String str) {
+    public boolean addText(Box box, long id, String str, String[] fixedKW) {
         if (id == -1) {
             return false;
         }
+
         char[] cs = sUtil.clear(str);
         LinkedHashMap<Short, KeyWord> map = util.fromString(id, cs);
-        map.putAll(util.getFixedKeyWord(id, str.toLowerCase()));
+        for (Map.Entry<Short, KeyWord> e
+                : ((Map<Short, KeyWord>) map.clone()).entrySet()) {
+            if (e.getValue().isWord && e.getValue().getKeyWord().length() < 3) {
+                map.remove(e.getKey());
+            }
+        }
         util.rankKeyWord(map);
 
-        try (Box box = auto.cube()) {
-            for (KeyWord kw : map.values()) {
-                if (kw.getKeyWord().equals(" ")) {
-                    continue;
-                }
-                if (kw.isWord) {
-                    box.d("E").insert(kw);
+        ArrayList<KeyWord> list = new ArrayList<KeyWord>(map.values());
+        for (Map.Entry<Short, KeyWord> e
+                : util.getFixedKeyWord(id, str, fixedKW).entrySet()) {
+            KeyWord kw = map.get(e.getKey());
+            if (kw != null) {
+                if (kw.getKeyWord().equals(e.getValue().getKeyWord())) {
+                    kw.setRank((short) (kw.getRank() + e.getValue().getRank()));
                 } else {
-                    box.d("N").insert(kw);
+                    list.add(e.getValue());
                 }
+            } else {
+                list.add(e.getValue());
             }
-            return box.commit() == CommitResult.OK;
         }
+
+        for (KeyWord kw : list) {
+            if (kw.isWord) {
+                box.d("E").insert(kw);
+            } else {
+                box.d("N").insert(kw);
+            }
+        }
+
+        return true;
     }
 
     public Iterable<KeyWord> search(final Box box, final String str) {
-        char[] cs = sUtil.clear(str);
+        char[] cs = sUtil.clear(str.replaceAll("  ", " "));
         KeyWord kw = new KeyWord();
         kw.isWord = true;
         kw.setKeyWord(new String(cs).trim());
@@ -120,14 +137,15 @@ public class Engine {
                         if (r1 != null && r1.hasNext()) {
                             return true;
                         }
-                        if (cd.hasNext()) {
+                        while (cd.hasNext()) {
                             KeyWord c = cd.next();
                             c.isWord = isWord;
                             r1 = search(box, nw, c).iterator();
-                        } else {
-                            return false;
+                            if (r1.hasNext()) {
+                                return true;
+                            }
                         }
-                        return r1 != null && r1.hasNext();
+                        return false;
                     }
 
                     @Override
@@ -157,7 +175,7 @@ public class Engine {
                     condition.getID(), kw.getKeyWord());
         } else {
             return box.select(KeyWord.class, "from N where I==? & K==? & P==?",
-                    condition.getID(), kw.getKeyWord(), condition.getPosition() + 1);
+                    condition.getID(), kw.getKeyWord(), (short) (condition.getPosition() + 1));
         }
     }
 
