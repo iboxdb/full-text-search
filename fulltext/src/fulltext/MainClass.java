@@ -71,7 +71,7 @@ public class MainClass {
         }
  
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, "git")) {
+            for (KeyWord kw : engine.search(box, "")) {
                 System.out.println(kw.Print());
             }
         }
