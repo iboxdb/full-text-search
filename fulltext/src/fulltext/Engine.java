@@ -96,6 +96,39 @@ public class Engine {
         return list.toArray(new String[0]);
     }
 
+    public Iterable<KeyWord> searchDistinct(final Box box, String str) {
+        final Iterator<KeyWord> it = search(box, str).iterator();
+        return new Iterable<KeyWord>() {
+
+            @Override
+            public Iterator<KeyWord> iterator() {
+                return new Iterator<KeyWord>() {
+                    long c_id = -1;
+                    KeyWord current;
+
+                    @Override
+                    public boolean hasNext() {
+                        while (it.hasNext()) {
+                            current = it.next();
+                            if (current.getID() == c_id) {
+                                continue;
+                            }
+                            c_id = current.getID();
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public KeyWord next() {
+                        return current;
+                    }
+
+                };
+            }
+        };
+    }
+
     public Iterable<KeyWord> search(final Box box, String str) {
 
         str = replaceSearchInput(str);
@@ -176,6 +209,7 @@ public class Engine {
                 return new Iterator<KeyWord>() {
                     Iterator<KeyWord> r1 = null;
                     KeyWord r1_con = null;
+                    long r1_id = -1;
 
                     @Override
                     public boolean hasNext() {
@@ -184,6 +218,12 @@ public class Engine {
                         }
                         while (cd.hasNext()) {
                             r1_con = cd.next();
+                            if (isWord) {
+                                if (r1_id == r1_con.getID()) {
+                                    continue;
+                                }
+                            }
+                            r1_id = r1_con.getID();
                             r1_con.isWord = isWord;
                             r1 = search(box, nw, r1_con).iterator();
                             if (r1.hasNext()) {

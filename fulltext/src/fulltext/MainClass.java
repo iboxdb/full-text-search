@@ -45,7 +45,7 @@ public class MainClass {
             + " 即使實際上讀者幾乎可以針對電腦上任意型態的檔案做版本控制。",
             //ID=4
             "Git 简史\n"
-            + "同生活中的许多伟大事物一样，Git 诞生于一个极富纷争大举创新的年代。\n"
+            + "同生活中的许多伟大事物一样，Git 诞生于一个极富纷争大举创新的年代。nosql \n"
             + "\n"
             + "Linux 内核开源项目有着为数众广的参与者。 绝大多数的 Linux 内核维护工作都花在了提交补丁和保存归档的"
             + "繁琐事务上（1991－2002年间）。 到 2002 年，"
@@ -71,7 +71,7 @@ public class MainClass {
         }
  
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, "")) {
+            for (KeyWord kw : engine.search(box, "nosql 版本 如何")) {
                 System.out.println(kw.Print());
             }
         }
