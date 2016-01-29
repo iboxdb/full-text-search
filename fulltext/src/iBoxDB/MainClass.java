@@ -1,11 +1,14 @@
 // http://www.iboxdb.com/
-package fulltext;
+package iBoxDB;
 
 import iBoxDB.LocalServer.*;
+import iBoxDB.fulltext.Engine;
+import iBoxDB.fulltext.KeyWord;
 
 public class MainClass {
 
     public static void main(String[] args) throws Exception {
+
         DB.root("/tmp/");
         iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
         DB db = new DB(1);
@@ -23,7 +26,7 @@ public class MainClass {
             + "Tell Git the email address that will be associated with your Git commits. "
             + "The email you specify should be the same one found in your email settings. "
             + "To keep your email address hidden,"
-            + " see \"Keeping your C# Java NoSQL email address abc@global.com private\".",
+            + " 关于 see \"Keeping your C# Java NoSQL email address abc@global.com private\".",
             //ID=1
             "关于版本控制\n"
             + "什么是“版本控制”？我为什么要关心它呢？ 版本控制是一种记录一个或若干文件内容变化，"
@@ -69,9 +72,13 @@ public class MainClass {
                 box.commit().Assert();
             }
         }
+        try (Box box = auto.cube()) {
+            //engine.indexText(box, 0, ts[0], true);
+            box.commit().Assert();
+        }
 
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, "abc@global.com   C# up-to-datE")) {
+            for (KeyWord kw : engine.search(box, "abc@global.com   C# up-to-datE 关")) {
                 System.out.println(kw.toFullString());
             }
         }

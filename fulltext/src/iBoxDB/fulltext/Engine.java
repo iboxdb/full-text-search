@@ -1,5 +1,5 @@
 //Free
-package fulltext;
+package iBoxDB.fulltext;
 
 import iBoxDB.LocalServer.*;
 import java.util.*;
@@ -46,6 +46,10 @@ public class Engine {
                 words.add(kw.getKeyWord());
                 binder = box.d("E", kw.getKeyWord(), kw.getID());
             } else {
+                if (map.get(kw.getPosition() - 1) == null
+                        && map.get(kw.getPosition() + 1) == null) {
+                    continue;
+                }
                 binder = box.d("N", kw.getKeyWord(), kw.getID(), kw.getPosition());
             }
             if (isRemove) {

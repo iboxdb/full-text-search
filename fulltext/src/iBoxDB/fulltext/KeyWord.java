@@ -1,5 +1,5 @@
 //Free
-package fulltext;
+package iBoxDB.fulltext;
 
 import iBoxDB.LocalServer.DatabaseConfig;
 import iBoxDB.LocalServer.NotColumn;

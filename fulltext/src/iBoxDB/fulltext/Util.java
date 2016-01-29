@@ -1,9 +1,9 @@
 //Free
-package fulltext;
+package iBoxDB.fulltext;
 
 import java.util.*;
 
-public class Util {
+class Util {
 
     final StringUtil sUtil = new StringUtil();
 

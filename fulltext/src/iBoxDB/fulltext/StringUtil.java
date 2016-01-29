@@ -1,10 +1,8 @@
-package fulltext;
+package iBoxDB.fulltext;
 
 import java.util.*;
 
-public class StringUtil {
-
-    public static StringUtil T = new StringUtil();
+class StringUtil {
 
     HashSet<Character> set;
 
@@ -19,10 +17,19 @@ public class StringUtil {
     }
 
     public boolean isWord(char c) {
+        //English
         if (c >= 'a' && c <= 'z') {
             return true;
         }
         if (c >= '0' && c <= '9') {
+            return true;
+        }
+        //Russian
+        if (c >= 0x0400 && c <= 0x052f) {
+            return true;
+        }
+        //Germen
+        if (c >= 0xc0 && c <= 0xff) {
             return true;
         }
         return c == '-' || c == '#';
