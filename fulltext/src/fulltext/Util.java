@@ -20,7 +20,7 @@ public class Util {
                 }
                 k = null;
             } else if (sUtil.isWord(c)) {
-                if (k == null && c != '-' && c != '@') {
+                if (k == null && c != '-' && c != '#') {
                     k = new KeyWord();
                     k.isWord = true;
                     k.setID(id);
@@ -44,30 +44,6 @@ public class Util {
             }
         }
 
-        return kws;
-    }
-
-    public LinkedHashMap<Integer, KeyWord> getFixedKeyWord(long id, String str,
-            String[] fixedKeywords) {
-        LinkedHashMap<Integer, KeyWord> kws = new LinkedHashMap<Integer, KeyWord>();
-        if (fixedKeywords != null && fixedKeywords.length > 0) {
-            str = str.toLowerCase();
-            for (String s : fixedKeywords) {
-                if (s.length() > KeyWord.MAX_WORD_LENGTH) {
-                    continue;
-                }
-                String sl = s.toLowerCase();
-                int p = str.indexOf(sl);
-                if (p > -1) {
-                    KeyWord k = new KeyWord();
-                    k.isWord = true;
-                    k.setID(id);
-                    k.setKeyWord(sl);
-                    k.setPosition(p);
-                    kws.put(k.getPosition(), k);
-                }
-            }
-        }
         return kws;
     }
 

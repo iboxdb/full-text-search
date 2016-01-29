@@ -14,7 +14,8 @@ public class MainClass {
             //ID=0
             "Setting up Git\n"
             + "\n"
-            + "Download and install the latest version of GitHub Desktop. This will automatically install Git and keep it up-to-date for you.\n"
+            + "Download and install the latest version of GitHub Desktop. "
+            + "This will automatically install Git and keep it up-to-date for you.\n"
             + "On your computer, open the Git Shell application.\n"
             + "Tell Git your name so your commits will be properly labeled. Type everything after the $ here:\n"
             + "\n"
@@ -56,7 +57,6 @@ public class MainClass {
             + " 这就迫使 Linux 开源社区（特别是 Linux 的缔造者 Linux Torvalds）基于使用 BitKcheper 时的"
             + "经验教训，开发出自己的版本系统。 他们对新的系统制订了若干目标："
         };
-        final String[] fixed = new String[]{"c#", "GitHub Desktop", "GIT", "源代码", "参与者", "檔案", "管理に関", "系统"};
 
         Engine engine = new Engine();
         engine.Config(db.getConfig().DBConfig);
@@ -65,14 +65,14 @@ public class MainClass {
 
         for (int i = 0; i < ts.length; i++) {
             try (Box box = auto.cube()) {
-                engine.indexText(box, i, ts[i], fixed, false);
+                engine.indexText(box, i, ts[i], false);
                 box.commit().Assert();
             }
         }
- 
+
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, "nosql 版本 如何")) {
-                System.out.println(kw.Print());
+            for (KeyWord kw : engine.search(box, "abc@global.com   C# up-to-datE")) {
+                System.out.println(kw.toFullString());
             }
         }
 

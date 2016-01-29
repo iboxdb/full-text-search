@@ -67,7 +67,7 @@ public class KeyWord {
         return K + ", Pos=" + P + ", ID=" + I + " " + (isWord ? "1" : "0");
     }
 
-    public String Print() {
-        return (previous != null ? previous.Print() + " -> " : "") + toString();
+    public String toFullString() {
+        return (previous != null ? previous.toFullString() + " -> " : "") + toString();
     }
 }

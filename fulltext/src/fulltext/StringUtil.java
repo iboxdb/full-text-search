@@ -9,9 +9,9 @@ public class StringUtil {
     HashSet<Character> set;
 
     public StringUtil() {
-        String s = "!\"#$%&'()*+,./:;<=>?[\\]^_`{|}~\r\n"; //@-
-        s += "， 　，《。》、？；：‘’“”【｛】｝——=+、｜·～！#￥%……&*（）"; //@-
-        s += "｀～！＠＃￥％……—×（）——＋－＝【】｛｝：；’＇”＂，．／＜＞？’‘”“";
+        String s = "!\"@$%&'()*+,./:;<=>?[\\]^_`{|}~\r\n"; //@-
+        s += "， 　，《。》、？；：‘’“”【｛】｝——=+、｜·～！￥%……&*（）"; //@-#
+        s += "｀～！＠￥％……—×（）——＋－＝【】｛｝：；’＇”＂，．／＜＞？’‘”“";//＃
         set = new HashSet<Character>();
         for (char c : s.toCharArray()) {
             set.add(c);
@@ -25,7 +25,7 @@ public class StringUtil {
         if (c >= '0' && c <= '9') {
             return true;
         }
-        return c == '-' || c == '@';
+        return c == '-' || c == '#';
     }
 
     public char[] clear(String str) {

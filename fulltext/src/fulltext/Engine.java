@@ -13,7 +13,7 @@ public class Engine {
         KeyWord.config(config);
     }
 
-    public boolean indexText(Box box, long id, String str, String[] fixedKW, boolean isRemove) {
+    public boolean indexText(Box box, long id, String str, boolean isRemove) {
         if (id == -1) {
             return false;
         }
@@ -23,7 +23,12 @@ public class Engine {
         for (Map.Entry<Short, KeyWord> e
                 : ((Map<Short, KeyWord>) map.clone()).entrySet()) {
             if (e.getValue().isWord && e.getValue().getKeyWord().length() < 3) {
-                map.remove(e.getKey());
+                if (e.getValue().getKeyWord().equals("c#")
+                        || e.getValue().getKeyWord().equals("f#")) {
+
+                } else {
+                    map.remove(e.getKey());
+                }
             }
             if (e.getValue().isWord && e.getValue().getKeyWord().length()
                     > KeyWord.MAX_WORD_LENGTH) {
@@ -31,11 +36,8 @@ public class Engine {
             }
         }
 
-        ArrayList<KeyWord> list = new ArrayList<KeyWord>(map.values());
-        list.addAll(util.getFixedKeyWord(id, str, fixedKW).values());
-
         HashSet<String> words = new HashSet<String>();
-        for (KeyWord kw : list) {
+        for (KeyWord kw : map.values()) {
             Binder binder;
             if (kw.isWord) {
                 if (words.contains(kw.getKeyWord())) {
@@ -56,44 +58,10 @@ public class Engine {
         return true;
     }
 
-    public String replaceSearchInput(String str) {
-        str = str.replaceAll("　", " ")
-                .replaceAll("。", " ")
-                .replaceAll("\\.", " ")
-                .replaceAll("\"", " ")
-                .replaceAll("  ", " ")
-                .replaceAll("  ", " ")
-                .toLowerCase().trim();
-        return str;
-    }
-
-    public String[] splitInput(String str) {
-        ArrayList<String> list = new ArrayList<String>();
-
-        String t = "";
-        boolean isUnder = str.charAt(0) < 255;
-        for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) == ' ') {
-                if (t.length() > 0) {
-                    list.add(t);
-                }
-                t = "";
-                continue;
-            }
-            boolean tUnder = str.charAt(i) < 255;
-            if (tUnder != isUnder) {
-                if (t.length() > 0) {
-                    list.add(t);
-                }
-                t = "";
-            }
-            isUnder = tUnder;
-            t += str.charAt(i);
-        }
-        if (t.length() > 0) {
-            list.add(t);
-        }
-        return list.toArray(new String[0]);
+    public Iterable<KeyWord> search(final Box box, String str) {
+        char[] cs = sUtil.clear(str);
+        LinkedHashMap<Integer, KeyWord> map = util.fromString(-1, cs);
+        return search(box, map.values().toArray(new KeyWord[0]));
     }
 
     public Iterable<KeyWord> searchDistinct(final Box box, String str) {
@@ -127,64 +95,6 @@ public class Engine {
                 };
             }
         };
-    }
-
-    public Iterable<KeyWord> search(final Box box, String str) {
-
-        str = replaceSearchInput(str);
-
-        KeyWord kw = new KeyWord();
-        kw.isWord = true;
-        kw.setKeyWord(str);
-        final Iterator<KeyWord> it = search(box, kw, null).iterator();
-
-        if (it.hasNext()) {
-            return new Iterable<KeyWord>() {
-                @Override
-                public Iterator<KeyWord> iterator() {
-                    return new Iterator<KeyWord>() {
-                        Iterator<KeyWord> self = null;
-
-                        @Override
-                        public boolean hasNext() {
-                            if (self == null) {
-                                self = it;
-                                return true;
-                            }
-                            return self.hasNext();
-                        }
-
-                        @Override
-                        public KeyWord next() {
-                            return it.next();
-                        }
-                    };
-                }
-            };
-        }
-
-        String[] names = splitInput(str);
-        ArrayList<KeyWord> kws = new ArrayList<KeyWord>();
-        for (int i = 0; i < names.length; i++) {
-            KeyWord k = null;
-            if (sUtil.isWord(names[i].charAt(0))) {
-                k = new KeyWord();
-                k.setKeyWord(names[i]);
-                k.setPosition(-100);
-                k.isWord = true;
-                kws.add(k);
-            } else {
-                int start = str.indexOf(names[i]);
-                for (char c : names[i].toCharArray()) {
-                    k = new KeyWord();
-                    k.setKeyWord(Character.toString(c));
-                    k.setPosition(start++);
-                    k.isWord = false;
-                    kws.add(k);
-                }
-            }
-        }
-        return search(box, kws.toArray(new KeyWord[0]));
     }
 
     // Base
