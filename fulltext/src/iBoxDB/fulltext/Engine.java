@@ -62,12 +62,6 @@ public class Engine {
         return true;
     }
 
-    public Iterable<KeyWord> search(final Box box, String str) {
-        char[] cs = sUtil.clear(str);
-        LinkedHashMap<Integer, KeyWord> map = util.fromString(-1, cs);
-        return search(box, map.values().toArray(new KeyWord[0]));
-    }
-
     public Iterable<KeyWord> searchDistinct(final Box box, String str) {
         final Iterator<KeyWord> it = search(box, str).iterator();
         return new Iterable<KeyWord>() {
@@ -99,6 +93,16 @@ public class Engine {
                 };
             }
         };
+    }
+
+    public String getDesc(String str, KeyWord kw) {
+        return sUtil.getDesc(str, kw);
+    }
+
+    public Iterable<KeyWord> search(final Box box, String str) {
+        char[] cs = sUtil.clear(str);
+        LinkedHashMap<Integer, KeyWord> map = util.fromString(-1, cs);
+        return search(box, map.values().toArray(new KeyWord[0]));
     }
 
     // Base
