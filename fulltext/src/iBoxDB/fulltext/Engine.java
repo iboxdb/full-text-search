@@ -20,21 +20,7 @@ public class Engine {
 
         char[] cs = sUtil.clear(str);
         LinkedHashMap<Integer, KeyWord> map = util.fromString(id, cs);
-        for (Map.Entry<Short, KeyWord> e
-                : ((Map<Short, KeyWord>) map.clone()).entrySet()) {
-            if (e.getValue().isWord && e.getValue().getKeyWord().length() < 3) {
-                if (e.getValue().getKeyWord().equals("c#")
-                        || e.getValue().getKeyWord().equals("f#")) {
-
-                } else {
-                    map.remove(e.getKey());
-                }
-            }
-            if (e.getValue().isWord && e.getValue().getKeyWord().length()
-                    > KeyWord.MAX_WORD_LENGTH) {
-                map.remove(e.getKey());
-            }
-        }
+        RemoveMinMax(map);
 
         HashSet<String> words = new HashSet<String>();
         for (KeyWord kw : map.values()) {
@@ -102,7 +88,30 @@ public class Engine {
     public Iterable<KeyWord> search(final Box box, String str) {
         char[] cs = sUtil.clear(str);
         LinkedHashMap<Integer, KeyWord> map = util.fromString(-1, cs);
+        RemoveMinMax(map);
+
+        if (map.size() > KeyWord.MAX_WORD_LENGTH || map.isEmpty()) {
+            return new ArrayList();
+        }
         return search(box, map.values().toArray(new KeyWord[0]));
+    }
+
+    private void RemoveMinMax(LinkedHashMap<Integer, KeyWord> map) {
+        for (Map.Entry<Short, KeyWord> e
+                : ((Map<Short, KeyWord>) map.clone()).entrySet()) {
+            if (e.getValue().isWord && e.getValue().getKeyWord().length() < 3) {
+                if (e.getValue().getKeyWord().equals("c#")
+                        || e.getValue().getKeyWord().equals("f#")) {
+
+                } else {
+                    map.remove(e.getKey());
+                }
+            }
+            if (e.getValue().isWord && e.getValue().getKeyWord().length()
+                    > KeyWord.MAX_WORD_LENGTH) {
+                map.remove(e.getKey());
+            }
+        }
     }
 
     // Base
