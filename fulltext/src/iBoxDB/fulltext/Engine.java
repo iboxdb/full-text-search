@@ -54,7 +54,7 @@ public class Engine {
 
             @Override
             public Iterator<KeyWord> iterator() {
-                return new Iterator<KeyWord>() {
+                return new EngineIterator<KeyWord>() {
                     long c_id = -1;
                     KeyWord current;
 
@@ -133,7 +133,7 @@ public class Engine {
 
             @Override
             public Iterator<KeyWord> iterator() {
-                return new Iterator<KeyWord>() {
+                return new EngineIterator<KeyWord>() {
                     Iterator<KeyWord> r1 = null;
                     KeyWord r1_con = null;
                     long r1_id = -1;
@@ -193,4 +193,12 @@ public class Engine {
         }
     }
 
+    private static abstract class EngineIterator<E> implements java.util.Iterator<E> {
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("remove");
+        }
+
+    }
 }
