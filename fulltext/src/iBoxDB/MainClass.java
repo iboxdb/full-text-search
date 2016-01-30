@@ -6,13 +6,13 @@ import iBoxDB.fulltext.Engine;
 import iBoxDB.fulltext.KeyWord;
 
 public class MainClass {
-    
+
     public static void main(String[] args) throws Exception {
-        
+
         DB.root("/tmp/");
         iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
         DB db = new DB(1);
-        
+
         final String[] ts = new String[]{
             //ID=0
             "Setting up Git\n"
@@ -60,12 +60,12 @@ public class MainClass {
             + " 这就迫使 Linux 开源社区（特别是 Linux 的缔造者 Linux Torvalds）基于使用 BitKcheper 时的"
             + "经验教训，开发出自己的版本系统。 他们对新的系统制订了若干目标："
         };
-        
+
         Engine engine = new Engine();
         engine.Config(db.getConfig().DBConfig);
-        
+
         AutoBox auto = db.open();
-        
+
         for (int i = 0; i < ts.length; i++) {
             try (Box box = auto.cube()) {
                 engine.indexText(box, i, ts[i], false);
@@ -76,14 +76,14 @@ public class MainClass {
             //engine.indexText(box, 4, ts[4], true);
             box.commit().Assert();
         }
-        
+
         try (Box box = auto.cube()) {
             for (KeyWord kw : engine.searchDistinct(box, "Linux 开发")) {
                 System.out.println(kw.toFullString());
-                System.out.println(engine.getDesc(ts[(int) kw.getID()], kw));
+                System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 100));
             }
         }
-        
+
     }
-    
+
 }

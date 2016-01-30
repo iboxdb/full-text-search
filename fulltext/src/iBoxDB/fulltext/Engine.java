@@ -95,8 +95,8 @@ public class Engine {
         };
     }
 
-    public String getDesc(String str, KeyWord kw) {
-        return sUtil.getDesc(str, kw);
+    public String getDesc(String str, KeyWord kw, int length) {
+        return sUtil.getDesc(str, kw, length);
     }
 
     public Iterable<KeyWord> search(final Box box, String str) {

@@ -45,7 +45,7 @@ class StringUtil {
         return cs;
     }
 
-    public String getDesc(String str, KeyWord kw) {
+    public String getDesc(String str, KeyWord kw, int length) {
         ArrayList<KeyWord> list = new ArrayList<KeyWord>();
         while (kw != null) {
             list.add(kw);
@@ -63,7 +63,6 @@ class StringUtil {
 
         int start = -1;
         int end = -1;
-        int length = 50;
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < ps.length; i++) {
             if ((ps[i].getPosition() + ps[i].getKeyWord().length()) < end) {
