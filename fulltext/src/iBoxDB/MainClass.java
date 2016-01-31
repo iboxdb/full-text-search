@@ -31,7 +31,7 @@ public class MainClass {
             "关于版本控制\n"
             + "什么是“版本控制”？我为什么要关心它呢？ 版本控制是一种记录一个或若干文件内容变化，"
             + "以便将来查阅特定版本修订情况的系统。 在本书所展示的例子中，我们对保存着软件源代码的文件作版本控制，"
-            + "但实际上，你可以对任何类型的文件进行版本控制。",
+            + "但实际上，C lang IT 你可以对任何类型的文件进行版本控制。",
             //ID=2
             "バージョン管理に関して\n"
             + "\n"
@@ -78,7 +78,7 @@ public class MainClass {
         }
 
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.searchDistinct(box, "Linux 开发")) {
+            for (KeyWord kw : engine.searchDistinct(box, "C it")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 100));
             }
