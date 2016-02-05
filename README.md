@@ -7,3 +7,5 @@ try (Box box = auto.cube()) {
     }
 }
 ```
+
+[FTS Web Server](https://github.com/iboxdb/ftserver)
