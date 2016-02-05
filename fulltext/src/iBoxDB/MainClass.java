@@ -78,7 +78,7 @@ public class MainClass {
         }
 
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.searchDistinct(box, "C it")) {
+            for (KeyWord kw : engine.searchDistinct(box, "C it 版本")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 100));
             }
