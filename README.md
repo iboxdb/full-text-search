@@ -9,3 +9,5 @@ try (Box box = auto.cube()) {
 ```
 
 [FTS Web Server](https://github.com/iboxdb/ftserver)
+
+![FTS Server](https://github.com/iboxdb/ftserver/raw/master/FTServer/web/css/fts.png)
