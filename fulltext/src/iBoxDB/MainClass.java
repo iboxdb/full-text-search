@@ -3,13 +3,21 @@ package iBoxDB;
 
 import iBoxDB.LocalServer.*;
 import iBoxDB.fulltext.Engine;
-import iBoxDB.fulltext.KeyWord;
+import iBoxDB.fulltext.KeyWord; 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 public class MainClass {
 
     public static void main(String[] args) throws Exception {
 
         DB.root("/tmp/");
+        test1();
+        //test_big();
+    }
+
+    public static void test1() {
         iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
         DB db = new DB(1);
 
@@ -83,6 +91,59 @@ public class MainClass {
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 100));
             }
         }
+    }
+
+    public static void test_big() throws FileNotFoundException, IOException, InterruptedException {
+        String path = System.getProperty("user.home") + "/hero.txt";
+        RandomAccessFile rf = new RandomAccessFile(path, "r");
+        byte[] bs = new byte[(int) rf.length()];
+        rf.readFully(bs);
+
+        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
+        DB db = new DB(1);
+
+        final String[] ts = new String[]{
+            new String(bs)
+        };
+        rf.close();
+
+        Engine engine = new Engine();
+        engine.Config(db.getConfig().DBConfig);
+
+        AutoBox auto = db.open();
+
+        long begin;
+        begin = System.currentTimeMillis();
+        for (int i = 0; i < ts.length; i++) {
+            try (Box box = auto.cube()) {
+                engine.indexText(box, i, ts[i], false);
+                box.commit().Assert();
+            }
+        }
+        System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
+
+        String strkw = "黄蓉";
+
+        int c;
+        for (int i = 0; i < 20; i++) {
+            begin = System.currentTimeMillis();
+            c = 0;
+            try (Box box = auto.cube()) {
+                for (KeyWord kw : engine.search(box, strkw)) {
+                    c++;
+                }
+            }
+            System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
+        }
+
+        begin = System.currentTimeMillis();
+        c = 0;
+        int p = ts[0].indexOf(strkw);
+        while (p > 0) {
+            c++;
+            p = ts[0].indexOf(strkw, p + 2);
+        }
+        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
 
     }
 
