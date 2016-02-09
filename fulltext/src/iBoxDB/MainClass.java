@@ -3,7 +3,7 @@ package iBoxDB;
 
 import iBoxDB.LocalServer.*;
 import iBoxDB.fulltext.Engine;
-import iBoxDB.fulltext.KeyWord; 
+import iBoxDB.fulltext.KeyWord;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -52,7 +52,7 @@ public class MainClass {
             "關於版本控制\n"
             + "什麼是版本控制？ 以及為什麼讀者會在意它？ "
             + "版本控制是一個能夠記錄一個或一組檔案在某一段時間的變更，"
-            + "使得讀者以後能取回特定版本的系統。 NoSQL"
+            + "使得讀者以後能取回特定版本的系統。 NoSQL 1234567890ABCDEFGH"
             + "在本書的範例中，讀者會學到如何對軟體的原始碼做版本控制。"
             + " 即使實際上讀者幾乎可以針對電腦上任意型態的檔案做版本控制。",
             //ID=4
@@ -86,9 +86,10 @@ public class MainClass {
         }
 
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.searchDistinct(box, "C it 版本")) {
+            //searchDistinct() , search()
+            for (KeyWord kw : engine.searchDistinct(box, "版本 C")) {
                 System.out.println(kw.toFullString());
-                System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 100));
+                System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
         }
     }
@@ -123,7 +124,7 @@ public class MainClass {
         System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
 
         String strkw = "黄蓉";
-
+        //strkw = "时察";
         int c;
         for (int i = 0; i < 20; i++) {
             begin = System.currentTimeMillis();
@@ -131,6 +132,8 @@ public class MainClass {
             try (Box box = auto.cube()) {
                 for (KeyWord kw : engine.search(box, strkw)) {
                     c++;
+                    //System.out.println(engine.getDesc(ts[0], kw, 15));
+                    //System.out.println(kw.toFullString());
                 }
             }
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
