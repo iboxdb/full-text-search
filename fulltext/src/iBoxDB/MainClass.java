@@ -29,7 +29,7 @@ public class MainClass {
             + "This will automatically install Git and keep it up-to-date for you.\n"
             + "On your computer, open the Git Shell application.\n"
             + "Tell Git your name so your commits will be properly labeled. Type everything after the $ here:\n"
-            + "\n"
+            + "\n babies "
             + "git config --global user.name \"YOUR NAME\"\n"
             + "Tell Git the email address that will be associated with your Git commits. "
             + "The email you specify should be the same one found in your email settings. "
@@ -87,7 +87,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.searchDistinct(box, "版本 C")) {
+            for (KeyWord kw : engine.searchDistinct(box, "BABY NAME")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
@@ -125,6 +125,7 @@ public class MainClass {
 
         String strkw = "黄蓉";
         //strkw = "时察";
+        strkw = "的";
         int c;
         for (int i = 0; i < 20; i++) {
             begin = System.currentTimeMillis();
