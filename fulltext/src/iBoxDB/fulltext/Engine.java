@@ -171,15 +171,26 @@ public class Engine {
     private static final class Index2KeyWordEIterable extends Index2KeyWordIterable {
 
         public Index2KeyWordEIterable(Iterable<Object> findex) {
-            super(findex, new KeyWordE());
+            super(findex);
+        }
+
+        @Override
+        protected KeyWord create() {
+            return new KeyWordE();
         }
     }
 
     private static final class Index2KeyWordNIterable extends Index2KeyWordIterable {
 
         public Index2KeyWordNIterable(Iterable<Object> findex) {
-            super(findex, new KeyWordN());
+            super(findex);
         }
+
+        @Override
+        protected KeyWord create() {
+            return new KeyWordN();
+        }
+
     }
 
     // faster than box.select(KeyWordX.class,...);
@@ -188,14 +199,16 @@ public class Engine {
 
         final Iterator<KeyWord> iterator;
 
-        protected Index2KeyWordIterable(final Iterable<Object> findex, final KeyWord cache) {
+        protected Index2KeyWordIterable(final Iterable<Object> findex) {
             iterator = new EngineIterator<KeyWord>() {
                 final Iterator<Object[]> index = (Iterator<Object[]>) (Object) findex.iterator();
+                KeyWord cache;
 
                 @Override
                 public boolean hasNext() {
                     if (index.hasNext()) {
                         Object[] os = index.next();
+                        cache = create();
                         cache.setKeyWord(os[0]);
                         cache.I = (Long) os[1];
                         cache.P = (Integer) os[2];
@@ -215,6 +228,8 @@ public class Engine {
         public Iterator<KeyWord> iterator() {
             return iterator;
         }
+
+        protected abstract KeyWord create();
 
     }
 

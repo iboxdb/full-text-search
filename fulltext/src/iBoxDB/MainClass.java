@@ -14,8 +14,8 @@ public class MainClass {
     public static void main(String[] args) throws Exception {
 
         DB.root("/tmp/");
-        test1();
-        //test_big();
+        //test1();
+        test_big();
         //test_big_e();
     }
 
@@ -127,8 +127,8 @@ public class MainClass {
 
         String strkw = "黄蓉";
         //strkw = "时察";
-        strkw = "的";
-        strkw = "七十二路";
+        //strkw = "的";
+        //strkw = "七十二路";
         int c;
         for (int i = 0; i < 20; i++) {
             begin = System.currentTimeMillis();
