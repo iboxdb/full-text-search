@@ -33,6 +33,7 @@ class StringUtil {
         if (c >= 0xc0 && c <= 0xff) {
             return true;
         }
+        //Korean [uAC00-uD7A3]
         return c == '-' || c == '#';
     }
 

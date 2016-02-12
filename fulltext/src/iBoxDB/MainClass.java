@@ -7,6 +7,7 @@ import iBoxDB.fulltext.KeyWord;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 
 public class MainClass {
 
@@ -15,6 +16,7 @@ public class MainClass {
         DB.root("/tmp/");
         test1();
         //test_big();
+        //test_big_e();
     }
 
     public static void test1() {
@@ -61,7 +63,7 @@ public class MainClass {
             + "\n"
             + "Linux 内核开源项目有着为数众广的参与者。 绝大多数的 Linux 内核维护工作都花在了提交补丁和保存归档的"
             + "繁琐事务上（1991－2002年间）。 到 2002 年，"
-            + "整个项目组开始启用一个专有的分布式版本控制系统 BitKeeper 来管理和维护代码。\n"
+            + "整个项目组开始启用一个专有的分布式 version 版本控制系统 BitKeeper 来管理和维护代码。\n"
             + "\n"
             + "到了 2005 年，开发 BitKeeper 的商业公司同 Linux 内核开源社区的合作关系结束，"
             + "他们收回了 Linux 内核社区免费使用 BitKeeper 的权力。"
@@ -87,7 +89,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.searchDistinct(box, "BABY NAME")) {
+            for (KeyWord kw : engine.searchDistinct(box, "linux 版本")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
@@ -126,6 +128,7 @@ public class MainClass {
         String strkw = "黄蓉";
         //strkw = "时察";
         strkw = "的";
+        strkw = "七十二路";
         int c;
         for (int i = 0; i < 20; i++) {
             begin = System.currentTimeMillis();
@@ -148,6 +151,77 @@ public class MainClass {
             p = ts[0].indexOf(strkw, p + 2);
         }
         System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
+
+    }
+
+    public static void test_big_e() throws FileNotFoundException, IOException, InterruptedException {
+        String path = System.getProperty("user.home") + "/phoenix.txt";
+        RandomAccessFile rf = new RandomAccessFile(path, "r");
+        byte[] bs = new byte[(int) rf.length()];
+        rf.readFully(bs);
+
+        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
+        DB db = new DB(1);
+
+        String ts[];
+        {
+            ArrayList<String> tts = new ArrayList<String>();
+            String sbs = new String(bs);
+            int begin = 0;
+            int end = begin + 2000;
+            while (end <= sbs.length() && begin != end) {
+                tts.add(sbs.substring(begin, end));
+                begin = end;
+                end = begin + 2000;
+                if (end > sbs.length()) {
+                    end = sbs.length();
+                }
+            }
+            tts.addAll((ArrayList) tts.clone()); 
+            ts = tts.toArray(new String[0]);
+        }
+        rf.close();
+
+        Engine engine = new Engine();
+        engine.Config(db.getConfig().DBConfig);
+
+        AutoBox auto = db.open();
+
+        long begin;
+        begin = System.currentTimeMillis();
+        try (Box box = auto.cube()) {
+            for (int i = 0; i < ts.length; i++) {
+                engine.indexText(box, i, ts[i], false);
+            }
+            box.commit().Assert();
+        }
+        System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
+
+        String strkw = "Harry";
+
+        int c;
+
+        begin = System.currentTimeMillis();
+        c = 0;
+        try (Box box = auto.cube()) {
+            for (KeyWord kw : engine.search(box, strkw)) {
+                c++;
+                //System.out.println(engine.getDesc(ts[0], kw, 15));
+                //System.out.println(kw.toFullString());
+            }
+        }
+        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
+
+        begin = System.currentTimeMillis();
+        c = 0;
+        for (int i = 0; i < ts.length; i++) {
+            int p = ts[i].indexOf(strkw);
+            if (p > 0) {
+                c++;
+            }
+        }
+        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
+        System.out.println(ts.length);
 
     }
 
