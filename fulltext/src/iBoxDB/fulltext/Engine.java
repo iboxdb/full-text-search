@@ -29,7 +29,7 @@ public class Engine {
                     continue;
                 }
                 words.add(kw.getKeyWord().toString());
-                binder = box.d("E", kw.getKeyWord(), kw.getID());
+                binder = box.d("E", kw.getKeyWord(), kw.getID(), kw.getPosition());
             } else {
                 binder = box.d("N", kw.getKeyWord(), kw.getID(), kw.getPosition());
             }

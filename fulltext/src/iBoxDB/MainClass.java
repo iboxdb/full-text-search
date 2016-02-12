@@ -14,8 +14,8 @@ public class MainClass {
     public static void main(String[] args) throws Exception {
 
         DB.root("/tmp/");
-        //test1();
-        test_big();
+        test1();
+        //test_big();
         //test_big_e();
     }
 
@@ -126,7 +126,7 @@ public class MainClass {
         System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
 
         String strkw = "黄蓉";
-        //strkw = "时察";
+        strkw = "时察";
         //strkw = "的";
         //strkw = "七十二路";
         int c;
@@ -177,7 +177,7 @@ public class MainClass {
                     end = sbs.length();
                 }
             }
-            tts.addAll((ArrayList) tts.clone()); 
+            //tts.addAll((ArrayList) tts.clone()); 
             ts = tts.toArray(new String[0]);
         }
         rf.close();
@@ -198,7 +198,7 @@ public class MainClass {
         System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
 
         String strkw = "Harry";
-
+        //strkw = "Philosopher";
         int c;
 
         begin = System.currentTimeMillis();
@@ -221,7 +221,7 @@ public class MainClass {
             }
         }
         System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
-        System.out.println(ts.length);
+        //System.out.println(ts.length);
 
     }
 
