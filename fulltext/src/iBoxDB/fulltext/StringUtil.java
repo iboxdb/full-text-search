@@ -10,6 +10,7 @@ class StringUtil {
         String s = "!\"@$%&'()*+,./:;<=>?[\\]^_`{|}~\r\n"; //@-
         s += "， 　，《。》、？；：‘’“”【｛】｝——=+、｜·～！￥%……&*（）"; //@-#
         s += "｀～！＠￥％……—×（）——＋－＝【】｛｝：；’＇”＂，．／＜＞？’‘”“";//＃
+        s += "� ";
         set = new HashSet<Character>();
         for (char c : s.toCharArray()) {
             set.add(c);
@@ -42,7 +43,7 @@ class StringUtil {
         for (int i = 0; i < cs.length; i++) {
             if (set.contains(cs[i])) {
                 cs[i] = ' ';
-            } 
+            }
         }
         return cs;
     }
