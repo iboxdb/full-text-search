@@ -16,7 +16,11 @@ public final class KeyWordN extends KeyWord {
     @NotColumn
     @Override
     public void setKeyWord(Object k) {
-        K = StringtoK((String) k);
+        if (k instanceof Long) {
+            K = (long) k;
+        } else {
+            K = StringtoK((String) k);
+        }
     }
 
     public long theNextK() {

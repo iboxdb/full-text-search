@@ -17,13 +17,9 @@ public class MainClass {
 
     public static void main(String[] args) throws Exception {
 
-        long k = KeyWordN.StringtoK("") ;
-        System.out.println( KeyWordN.KtoString(k) + " , " + KeyWordN.KtoString(k).length());
-        
-        
         DB.root("/tmp/");
         //test1();
-        //test_big();
+        test_big();
         //test_big_e();
     }
 
@@ -97,7 +93,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.searchDistinct(box, "linux 版本")) {
+            for (KeyWord kw : engine.search(box, "系统　来")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }

@@ -39,7 +39,7 @@ class StringUtil {
     }
 
     public char[] clear(String str) {
-        char[] cs = (str + " ").toLowerCase().toCharArray();
+        char[] cs = (str + "   ").toLowerCase().toCharArray();
         for (int i = 0; i < cs.length; i++) {
             if (set.contains(cs[i])) {
                 cs[i] = ' ';
