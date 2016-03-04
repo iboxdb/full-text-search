@@ -80,16 +80,6 @@ public class Engine {
         return sUtil.getDesc(str, kw, length);
     }
 
-    private static HashSet<String> mvends = new HashSet<String>() {
-        {
-            add("are");
-            add("were");
-            add("have");
-            add("has");
-            add("had");
-        }
-    };
-
     public Iterable<KeyWord> search(final Box box, String str) {
         char[] cs = sUtil.clear(str);
         ArrayList<KeyWord> map = util.fromString(-1, cs, false);
@@ -103,7 +93,7 @@ public class Engine {
             KeyWord kw = map.get(i);
             if (kw instanceof KeyWordE) {
                 String s = kw.getKeyWord().toString();
-                if ((s.length() > 2) && (!mvends.contains(s))) {
+                if ((s.length() > 2) && (!sUtil.mvends.contains(s))) {
                     kws.add(kw);
                     map.set(i, null);
                 }
@@ -251,7 +241,6 @@ public class Engine {
 
     }
 
-    // faster than box.select(KeyWordX.class,...);
     private static abstract class Index2KeyWordIterable
             implements Iterable<KeyWord> {
 

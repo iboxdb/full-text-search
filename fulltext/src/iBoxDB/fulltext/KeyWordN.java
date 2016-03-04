@@ -23,6 +23,7 @@ public final class KeyWordN extends KeyWord {
         }
     }
 
+    @NotColumn
     public long theNextK() {
         byte s = size();
         if (s == 3) {
@@ -35,6 +36,7 @@ public final class KeyWordN extends KeyWord {
 
     }
 
+    @NotColumn
     public byte size() {
         if ((K & CMASK) != 0L) {
             return 3;
@@ -52,6 +54,7 @@ public final class KeyWordN extends KeyWord {
 
     static final long CMASK = 0xFFFF;
 
+    @NotColumn
     private static String KtoString(long k) {
         char c0 = (char) ((k & (CMASK << 32)) >> 32);
         char c1 = (char) ((k & (CMASK << 16)) >> 16);
@@ -66,6 +69,7 @@ public final class KeyWordN extends KeyWord {
         return Character.toString(c0);
     }
 
+    @NotColumn
     private static long StringtoK(String str) {
         long k = (0L | str.charAt(0)) << 32;
         if (str.length() > 1) {

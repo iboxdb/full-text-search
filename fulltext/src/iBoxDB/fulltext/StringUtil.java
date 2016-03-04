@@ -5,6 +5,7 @@ import java.util.*;
 class StringUtil {
 
     HashSet<Character> set;
+    public HashSet<String> mvends;
 
     public StringUtil() {
         String s = "!\"@$%&'()*+,./:;<=>?[\\]^_`{|}~\r\n"; //@-
@@ -16,6 +17,19 @@ class StringUtil {
             set.add(c);
         }
         set.add((char) 0);
+
+        String[] ms = new String[]{
+            "are", "were", "have", "has", "had",
+            "you", "she", "her", "him", "like", "will", "would", "should",
+            "when", "than", "then", "that", "this", "there", "who", "those", "these",
+            "with", "which", "where", "they", "them", "one",
+            "does", "doesn", "did", "gave", "give",
+            "something", "someone", "about", "come"
+        };
+        mvends = new HashSet<String>();
+        for (String c : ms) {
+            mvends.add(c);
+        }
     }
 
     public boolean isWord(char c) {
