@@ -101,9 +101,6 @@ public class Engine {
 
         for (int i = 0; i < map.size(); i++) {
             KeyWord kw = map.get(i);
-            if (kw == null) {
-                continue;
-            }
             if (kw instanceof KeyWordE) {
                 String s = kw.getKeyWord().toString();
                 if ((s.length() > 2) && (!mvends.contains(s))) {

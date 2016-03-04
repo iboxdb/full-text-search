@@ -18,8 +18,8 @@ public class MainClass {
     public static void main(String[] args) throws Exception {
 
         DB.root("/tmp/");
-        //test1();
-        test_big();
+        test1();
+        //test_big();
         //test_big_e();
     }
 
@@ -58,7 +58,7 @@ public class MainClass {
             "關於版本控制\n"
             + "什麼是版本控制？ 以及為什麼讀者會在意它？ "
             + "版本控制是一個能夠記錄一個或一組檔案在某一段時間的變更，"
-            + "使得讀者以後能取回特定版本的系統。 NoSQL 1234567890ABCDEFGH"
+            + "使得讀者以後能取回特定版本的系統。has NoSQL 1234567890ABCDEFGH"
             + "在本書的範例中，讀者會學到如何對軟體的原始碼做版本控制。"
             + " 即使實際上讀者幾乎可以針對電腦上任意型態的檔案做版本控制。",
             //ID=4
@@ -93,7 +93,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "系统　来")) {
+            for (KeyWord kw : engine.search(box, "HAs 1234567890ABCDEFGH 在 能取回特")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
