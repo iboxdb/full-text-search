@@ -4,17 +4,25 @@ package iBoxDB;
 import iBoxDB.LocalServer.*;
 import iBoxDB.fulltext.Engine;
 import iBoxDB.fulltext.KeyWord;
+import iBoxDB.fulltext.KeyWordN;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.Buffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class MainClass {
 
     public static void main(String[] args) throws Exception {
 
+        long k = KeyWordN.StringtoK("") ;
+        System.out.println( KeyWordN.KtoString(k) + " , " + KeyWordN.KtoString(k).length());
+        
+        
         DB.root("/tmp/");
-        test1();
+        //test1();
         //test_big();
         //test_big_e();
     }

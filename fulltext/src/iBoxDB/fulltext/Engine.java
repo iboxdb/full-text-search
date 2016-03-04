@@ -157,14 +157,24 @@ public class Engine {
                 return new Index2KeyWordEIterable(box.select(Object.class, "from E where K==? &  I==?",
                         kw.getKeyWord(), condition.getID()));
             }
-        } else if (condition == null) {
-            return new Index2KeyWordNIterable(box.select(Object.class, "from N where K==?", kw.getKeyWord()));
-        } else if (asWord) {
-            return new Index2KeyWordNIterable(box.select(Object.class, "from N where K==? &  I==?",
-                    kw.getKeyWord(), condition.getID()));
         } else {
-            return new Index2KeyWordNIterable(box.select(Object.class, "from N where K==? & I==? & P==?",
-                    kw.getKeyWord(), condition.getID(), (condition.getPosition() + 1)));
+            KeyWordN kwn = (KeyWordN) kw;
+            if (condition instanceof KeyWordE) {
+                asWord = true;
+            }
+            if (condition == null) {
+                return new Index2KeyWordNIterable(
+                        box.select(Object.class, "from N where K>=? & K<?", kwn.K, kwn.theNextK()));
+            } else if (asWord) {
+                return new Index2KeyWordNIterable(
+                        box.select(Object.class, "from N where K>=? & K<? & I==?",
+                                kwn.K, kwn.theNextK(), condition.getID()));
+            } else {
+                return new Index2KeyWordNIterable(
+                        box.select(Object.class, "from N where K>=? & K<? & I==? & P==?",
+                                kwn.K, kwn.theNextK(), condition.getID(),
+                                (condition.getPosition() + 3)));
+            }
         }
     }
 
