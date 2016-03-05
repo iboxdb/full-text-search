@@ -14,9 +14,6 @@ public class Engine {
     }
 
     public boolean indexText(Box box, long id, String str, boolean isRemove) {
-        if (id < 0) {
-            return false;
-        }
 
         char[] cs = sUtil.clear(str);
         ArrayList<KeyWord> map = util.fromString(id, cs, true);

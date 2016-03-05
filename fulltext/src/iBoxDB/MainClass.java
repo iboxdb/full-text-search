@@ -17,6 +17,7 @@ public class MainClass {
 
     public static void main(String[] args) throws Exception {
 
+        System.out.println( java.lang.Runtime.getRuntime().maxMemory() );
         DB.root("/tmp/");
         //test1();
         test_big();
@@ -102,7 +103,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "版")) {
+            for (KeyWord kw : engine.search(box, "文件")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
