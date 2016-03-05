@@ -24,19 +24,6 @@ public final class KeyWordN extends KeyWord {
     }
 
     @NotColumn
-    public long theNextK() {
-        byte s = size();
-        if (s == 3) {
-            return K + 1L;
-        }
-        if (s == 2) {
-            return K + (1L << 16);
-        }
-        return K + (1L << 32);
-
-    }
-
-    @NotColumn
     public byte size() {
         if ((K & CMASK) != 0L) {
             return 3;

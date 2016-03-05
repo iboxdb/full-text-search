@@ -18,8 +18,8 @@ public class MainClass {
     public static void main(String[] args) throws Exception {
 
         DB.root("/tmp/");
-        test1();
-        //test_big();
+        //test1();
+        test_big();
         //test_big_e();
     }
 
@@ -102,7 +102,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.searchDistinct(box, "版本")) {
+            for (KeyWord kw : engine.search(box, "版")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
@@ -226,7 +226,7 @@ public class MainClass {
             }
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
         }
-        
+
         begin = System.currentTimeMillis();
         c = 0;
         for (int i = 0; i < ts.length; i++) {
