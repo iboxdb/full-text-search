@@ -50,18 +50,16 @@ public class Engine {
             @Override
             public Iterator<KeyWord> iterator() {
                 return new EngineIterator<KeyWord>() {
-                    long c_id = -1;
+                    HashSet<Long> c_id = new HashSet<Long>();
                     KeyWord current;
 
                     @Override
                     public boolean hasNext() {
                         while (it.hasNext()) {
                             current = it.next();
-                            if (current.getID() == c_id) {
-                                continue;
+                            if (c_id.add(current.getID())) {
+                                return true;
                             }
-                            c_id = current.getID();
-                            return true;
                         }
                         return false;
                     }

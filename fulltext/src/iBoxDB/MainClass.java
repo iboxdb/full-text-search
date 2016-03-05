@@ -102,7 +102,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "프로젝트 HAs SYSTEM is 퓨터 Control GIT")) {
+            for (KeyWord kw : engine.searchDistinct(box, "版本")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
             }
@@ -139,7 +139,7 @@ public class MainClass {
         System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
 
         String strkw = "黄蓉";
-        strkw = "时察";
+        //strkw = "时察";
         //strkw = "的";
         //strkw = "七十二路";
         int c;
@@ -214,17 +214,19 @@ public class MainClass {
         //strkw = "Philosopher";
         int c;
 
-        begin = System.currentTimeMillis();
-        c = 0;
-        try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, strkw)) {
-                c++;
-                //System.out.println(engine.getDesc(ts[0], kw, 15));
-                //System.out.println(kw.toFullString());
+        for (int i = 0; i < 20; i++) {
+            begin = System.currentTimeMillis();
+            c = 0;
+            try (Box box = auto.cube()) {
+                for (KeyWord kw : engine.search(box, strkw)) {
+                    c++;
+                    //System.out.println(engine.getDesc(ts[0], kw, 15));
+                    //System.out.println(kw.toFullString());
+                }
             }
+            System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
         }
-        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
-
+        
         begin = System.currentTimeMillis();
         c = 0;
         for (int i = 0; i < ts.length; i++) {
