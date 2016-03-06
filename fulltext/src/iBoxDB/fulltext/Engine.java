@@ -15,6 +15,7 @@ public class Engine {
 
     public boolean indexText(Box box, long id, String str, boolean isRemove) {
         if (id == -1) {
+            // -1 is internal default value as NULL
             return false;
         }
         char[] cs = sUtil.clear(str);
@@ -121,7 +122,6 @@ public class Engine {
         return search(box, kws.toArray(new KeyWord[0]));
     }
 
-    // Base
     private Iterable<KeyWord> search(final Box box, final KeyWord[] kws) {
         if (kws.length == 1) {
             return search(box, kws[0], (KeyWord) null, false);
@@ -254,8 +254,8 @@ public class Engine {
 
                         cache.setKeyWord(os[0]);
                         cache.I = (Long) os[1];
-
                         cache.P = (Integer) os[2];
+                        
                         return true;
                     }
                     return false;

@@ -34,11 +34,6 @@ public final class KeyWordN extends KeyWord {
         return 1;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-
     static final long CMASK = 0xFFFF;
 
     @NotColumn
