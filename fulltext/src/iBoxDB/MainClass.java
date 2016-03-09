@@ -17,7 +17,7 @@ public class MainClass {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println( java.lang.Runtime.getRuntime().maxMemory() );
+        System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
         test1();
         //test_big();
@@ -73,7 +73,7 @@ public class MainClass {
             + "到了 2005 年，开发 BitKeeper 的商业公司同 Linux 内核开源社区的合作关系结束，"
             + "他们收回了 Linux 内核社区免费使用 BitKeeper 的权力。"
             + " 这就迫使 Linux 开源社区（特别是 Linux 的缔造者 Linux Torvalds）基于使用 BitKcheper 时的"
-            + "经验教训，开发出自己的版本系统。 他们对新的系统制订了若干目标：",
+            + "经验教训，开发出自己的版本系统　。 他们对新的系统制订了若干目标：",
             //ID=5
             "버전 관리란?\n\n버전 관리는 무엇이고 우리는 왜 이것을 알아야 할까? 버전 관리 시스템은 파일 변화를 시간에 따라 "
             + "기록했다가 나중에 특정 시점의 버전을 다시 꺼내올 수 있는 시스템이다. 이 책에서는 버전 관리하는 예제로 소프트웨어 "
@@ -103,9 +103,10 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "版本控 BitKeeper")) {
+            for (KeyWord kw : engine.search(box, "linux git")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
+                System.out.println();
             }
         }
     }
