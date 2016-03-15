@@ -4,6 +4,15 @@ import java.util.*;
 
 class StringUtil {
 
+    protected static HashMap<String, String> correctKW = new HashMap<String, String>() {
+        {
+            put("databae", "database");
+            put("beby", "baby");
+            put("canguan", "餐馆");
+            put("meishi", "美食");
+        }
+    };
+
     protected static HashMap<String, String> antetypes = new HashMap<String, String>() {
         {
             put("dogs", "dog");
@@ -118,6 +127,36 @@ class StringUtil {
         }
         return sb.toString();
 
+    }
+
+    public void correctInput(ArrayList<KeyWord> kws) {
+        for (int i = 0; i < kws.size(); i++) {
+            KeyWord kw = (KeyWord) kws.get(i);
+            if (kw instanceof KeyWordE) {
+                String str = kw.getKeyWord().toString();
+                str = correctKW.get(str);
+                if (str != null) {
+                    if (isWord(str.charAt(0))) {
+                        kw.setKeyWord(str);
+                    } else {
+                        KeyWordN kwn = new KeyWordN();
+                        kwn.I = kw.I;
+                        kwn.P = kw.P + 1;
+                        switch (str.length()) {
+                            case 1:
+                                kwn.longKeyWord(str.charAt(0), (char) 0, (char) 0);
+                                break;
+                            case 2:
+                                kwn.longKeyWord(str.charAt(0), str.charAt(1), (char) 0);
+                                break;
+                            default:
+                                continue;
+                        }
+                        kws.set(i, kwn);
+                    }
+                }
+            }
+        }
     }
 
 }
