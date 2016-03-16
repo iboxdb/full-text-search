@@ -8,6 +8,7 @@ class StringUtil {
         {
             put("databae", "database");
             put("beby", "baby");
+            put("androd", "android");
             put("canguan", "餐馆");
             put("meishi", "美食");
         }

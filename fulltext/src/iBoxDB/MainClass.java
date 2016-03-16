@@ -44,7 +44,7 @@ public class MainClass {
             + " 关于 see \"Keeping your C# Java NoSQL email address abc@global.com private\".",
             //ID=1
             "关于版本控制\n"
-            + "什么是“版本控制”？我为什么要关心它呢？ 版本控制是一种记录一个或若干文件内容变化，database"
+            + "什么是“版本控制”？我为什么要关心它呢？ 版本控制 android 是一种记录一个或若干文件内容变化，database"
             + "以便将来查阅特定版本修订情况的系统。 在本书所展示的例子中，我们对保存着软件源代码的文件作版本控制，"
             + "但实际上，C lang IT 美食 你可以对任何类型的文件进行版本控制。",
             //ID=2
@@ -103,7 +103,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "databae 版本控meishi")) {
+            for (KeyWord kw : engine.search(box, "databae 版本控meishi androd")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                 System.out.println();
@@ -118,7 +118,7 @@ public class MainClass {
         byte[] bs = new byte[(int) rf.length()];
         rf.readFully(bs);
 
-        //iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
+        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
         DB db = new DB(1);
 
         final String[] ts = new String[]{
@@ -134,14 +134,14 @@ public class MainClass {
         String fulltext = "";
         long begin;
         begin = System.currentTimeMillis();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             fulltext += ts[0];
-            /*
+
             try (Box box = auto.cube()) {
                 engine.indexText(box, i, ts[0], false);
                 box.commit().Assert();
             }
-             */
+
         }
         System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
 
