@@ -63,6 +63,9 @@ class StringUtil {
         }
     }
 
+    //Chinese  [\u2E80-\u9fa5]
+    //Japanese [\u0800-\u4e00]|
+    //Korean   [\uAC00-\uD7A3] [\u3130-\u318F] 
     public boolean isWord(char c) {
         //English
         if (c >= 'a' && c <= 'z') {
@@ -79,7 +82,6 @@ class StringUtil {
         if (c >= 0xc0 && c <= 0xff) {
             return true;
         }
-        //Korean [uAC00-uD7A3]
         return c == '-' || c == '#';
     }
 

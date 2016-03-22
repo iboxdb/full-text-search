@@ -43,6 +43,45 @@ public class Engine {
         return true;
     }
 
+    public ArrayList<String> discover(final Box box,
+            char efrom, char eto, int elength,
+            char nfrom, char nto, int nlength) {
+        ArrayList<String> list = new ArrayList<String>();
+        Random ran = new Random();
+        if (elength > 0) {
+            int len = ran.nextInt(KeyWord.MAX_WORD_LENGTH) + 1;
+            char[] cs = new char[len];
+            for (int i = 0; i < cs.length; i++) {
+                cs[i] = (char) (ran.nextInt(eto - efrom) + efrom);
+            }
+            KeyWordE kw = new KeyWordE();
+            kw.setKeyWord(new String(cs));
+            for (KeyWord tkw : lessMatch(box, kw)) {
+                list.add(tkw.getKeyWord().toString());
+                elength--;
+                if (elength <= 0) {
+                    break;
+                }
+            }
+        }
+        if (nlength > 0) {
+            char[] cs = new char[2];
+            for (int i = 0; i < cs.length; i++) {
+                cs[i] = (char) (ran.nextInt(nto - nfrom) + nfrom);
+            }
+            KeyWordN kw = new KeyWordN();
+            kw.longKeyWord(cs[0], cs[1], (char) 0);
+            for (KeyWord tkw : lessMatch(box, kw)) {
+                list.add(((KeyWordN) tkw).toKString());
+                nlength--;
+                if (nlength <= 0) {
+                    break;
+                }
+            }
+        }
+        return list;
+    }
+
     public Iterable<KeyWord> searchDistinct(final Box box, String str) {
         final Iterator<KeyWord> it = search(box, str).iterator();
         return new Iterable<KeyWord>() {
@@ -209,6 +248,14 @@ public class Engine {
                 return new Index2KeyWordNIterable(box.select(Object.class, "from N where K==? & I==? & P==?",
                         kw.getKeyWord(), con.getID(), (con.getPosition() + ((KeyWordN) con).size())));
             }
+        }
+    }
+
+    private Iterable<KeyWord> lessMatch(Box box, KeyWord kw) {
+        if (kw instanceof KeyWordE) {
+            return new Index2KeyWordEIterable(box.select(Object.class, "from E where K<=?", kw.getKeyWord()));
+        } else {
+            return new Index2KeyWordNIterable(box.select(Object.class, "from N where K<=?", kw.getKeyWord()));
         }
     }
 

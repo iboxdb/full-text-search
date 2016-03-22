@@ -108,6 +108,11 @@ public class MainClass {
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                 System.out.println();
             }
+            for (String skw : engine.discover(box,
+                    'a', 'z', 2,
+                    '\u2E80', '\u9fa5', 2)) {
+                System.out.println(skw);
+            }
         }
     }
 
