@@ -43,10 +43,10 @@ public class Engine {
         return true;
     }
 
-    public ArrayList<String> discover(final Box box,
+    public LinkedHashSet<String> discover(final Box box,
             char efrom, char eto, int elength,
             char nfrom, char nto, int nlength) {
-        ArrayList<String> list = new ArrayList<String>();
+        LinkedHashSet<String> list = new LinkedHashSet<String>();
         Random ran = new Random();
         if (elength > 0) {
             int len = ran.nextInt(KeyWord.MAX_WORD_LENGTH) + 1;
@@ -57,10 +57,13 @@ public class Engine {
             KeyWordE kw = new KeyWordE();
             kw.setKeyWord(new String(cs));
             for (KeyWord tkw : lessMatch(box, kw)) {
+                int c = list.size();
                 list.add(tkw.getKeyWord().toString());
-                elength--;
-                if (elength <= 0) {
-                    break;
+                if (list.size() > c) {
+                    elength--;
+                    if (elength <= 0) {
+                        break;
+                    }
                 }
             }
         }
@@ -72,10 +75,13 @@ public class Engine {
             KeyWordN kw = new KeyWordN();
             kw.longKeyWord(cs[0], cs[1], (char) 0);
             for (KeyWord tkw : lessMatch(box, kw)) {
+                int c = list.size();
                 list.add(((KeyWordN) tkw).toKString());
-                nlength--;
-                if (nlength <= 0) {
-                    break;
+                if (list.size() > c) {
+                    nlength--;
+                    if (nlength <= 0) {
+                        break;
+                    }
                 }
             }
         }

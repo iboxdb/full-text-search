@@ -109,7 +109,7 @@ public class MainClass {
                 System.out.println();
             }
             for (String skw : engine.discover(box,
-                    'a', 'z', 2,
+                    'n', 's', 2,
                     '\u2E80', '\u9fa5', 2)) {
                 System.out.println(skw);
             }
