@@ -57,8 +57,12 @@ public class Engine {
             KeyWordE kw = new KeyWordE();
             kw.setKeyWord(new String(cs));
             for (KeyWord tkw : lessMatch(box, kw)) {
+                String str = tkw.getKeyWord().toString();
+                if (str.length() < 3 || sUtil.mvends.contains(str)) {
+                    continue;
+                }
                 int c = list.size();
-                list.add(tkw.getKeyWord().toString());
+                list.add(str);
                 if (list.size() > c) {
                     elength--;
                     if (elength <= 0) {
