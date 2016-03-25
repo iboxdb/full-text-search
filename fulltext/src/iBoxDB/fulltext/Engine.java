@@ -92,39 +92,6 @@ public class Engine {
         return list;
     }
 
-    public Iterable<KeyWord> searchDistinct(final Box box, String str) {
-        final Iterator<KeyWord> it = search(box, str).iterator();
-        return new Iterable<KeyWord>() {
-
-            @Override
-            public Iterator<KeyWord> iterator() {
-                return new EngineIterator<KeyWord>() {
-                    long c_id = -1;
-                    KeyWord current;
-
-                    @Override
-                    public boolean hasNext() {
-                        while (it.hasNext()) {
-                            current = it.next();
-                            if (current.getID() == c_id) {
-                                continue;
-                            }
-                            c_id = current.getID();
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    @Override
-                    public KeyWord next() {
-                        return current;
-                    }
-
-                };
-            }
-        };
-    }
-
     public String getDesc(String str, KeyWord kw, int length) {
         return sUtil.getDesc(str, kw, length);
     }
@@ -169,12 +136,31 @@ public class Engine {
                 kws.add(kw);
             }
         }
-        return search(box, kws.toArray(new KeyWord[0]));
+        final MaxID maxId = new MaxID();
+        final Iterator<KeyWord> iter = search(box, kws.toArray(new KeyWord[0]), maxId).iterator();
+        return new Iterable<KeyWord>() {
+            @Override
+            public Iterator<KeyWord> iterator() {
+                return new Iterator<KeyWord>() {
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
+
+                    @Override
+                    public KeyWord next() {
+                        KeyWord kw = iter.next();
+                        maxId.id--;
+                        return kw;
+                    }
+
+                };
+            }
+        };
     }
 
-    private Iterable<KeyWord> search(final Box box, final KeyWord[] kws) {
-        MaxID maxId = new MaxID();
-        maxId.id = Long.MAX_VALUE;
+    private Iterable<KeyWord> search(final Box box, final KeyWord[] kws, MaxID maxId) {
+
         if (kws.length == 1) {
             return search(box, kws[0], (KeyWord) null, false, maxId);
         }
@@ -187,7 +173,7 @@ public class Engine {
         }
 
         return search(box, kws[kws.length - 1],
-                search(box, Arrays.copyOf(kws, kws.length - 1)),
+                search(box, Arrays.copyOf(kws, kws.length - 1), maxId),
                 asWord, maxId);
     }
 
@@ -237,10 +223,12 @@ public class Engine {
 
     }
 
-    private static Index2KeyWordIterable search(Box box, KeyWord kw, KeyWord con, boolean asWord, MaxID maxId) {
+    private static final Iterable<KeyWord> emptySearch = new ArrayList();
+
+    private static Iterable<KeyWord> search(Box box, KeyWord kw, KeyWord con, boolean asWord, MaxID maxId) {
         if (con != null) {
             if (con.I > maxId.id) {
-                throw new RuntimeException("unreachable");
+                return emptySearch;
             } else {
                 maxId.id = con.I;
             }
@@ -274,7 +262,7 @@ public class Engine {
 
     private static final class MaxID {
 
-        public long id;
+        public long id = Long.MAX_VALUE;
     }
 
     private static final class Index2KeyWordEIterable extends Index2KeyWordIterable {
@@ -320,19 +308,26 @@ public class Engine {
 
                 @Override
                 public boolean hasNext() {
-                    Begin:
+
+                    if (firstMaxId > maxId.id) {
+                        firstMaxId = maxId.id;
+
+                        Iterable<KeyWord> tmp = search(box, kw, con, asWord, maxId);
+                        if (tmp instanceof Index2KeyWordIterable) {
+                            index = (Iterator<Object[]>) (Object) ((Index2KeyWordIterable) tmp).findex.iterator();
+                        }
+                    }
+
                     if (index.hasNext()) {
                         Object[] os = index.next();
+                        long osid = (Long) os[1];
+                        maxId.id = osid;
+                        firstMaxId = maxId.id;
 
                         if (con != null) {
-                            maxId.id = (Long) os[1];
                             if (con.I != maxId.id) {
                                 return false;
                             }
-                        } else if (firstMaxId != maxId.id) {
-                            firstMaxId = maxId.id;
-                            index = (Iterator<Object[]>) (Object) search(box, kw, con, asWord, maxId).findex.iterator();
-                            break Begin;
                         }
 
                         cache = create();

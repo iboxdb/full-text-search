@@ -103,7 +103,7 @@ public class MainClass {
 
         try (Box box = auto.cube()) {
             //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "databae 版本控meishi androd")) {
+            for (KeyWord kw : engine.search(box, "版本控 ")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                 System.out.println();
