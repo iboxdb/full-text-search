@@ -128,8 +128,16 @@ public class MainClass {
         //iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
         DB db = new DB(1);
 
-        final String[] ts = new String(bs).split("。");
         rf.close();
+
+        String[] tstmp = new String(bs).split("。");
+        ArrayList<String> list = new ArrayList<String>();
+        for (int i = 0; i < 2; i++) {
+            for (String str : tstmp) {
+                list.add(str);
+            }
+        }
+        final String[] ts = list.toArray(new String[0]);
 
         final Engine engine = new Engine();
         engine.Config(db.getConfig().DBConfig);
