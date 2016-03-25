@@ -22,14 +22,14 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        //test1();
-        test_big();
+        test1();
+        //test_big();
         //test_big_e();
     }
 
     public static void test1() {
-        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
-        DB db = new DB(1);
+        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(2);
+        DB db = new DB(2);
 
         final String[] ts = new String[]{
             //ID=0
@@ -105,7 +105,7 @@ public class MainClass {
         }
 
         try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, "版本控")) {
+            for (KeyWord kw : engine.search(box, "版本控 nosql")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                 System.out.println();
