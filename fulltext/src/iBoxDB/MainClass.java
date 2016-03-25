@@ -12,6 +12,9 @@ import java.nio.Buffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainClass {
 
@@ -19,8 +22,8 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        test1();
-        //test_big();
+        //test1();
+        test_big();
         //test_big_e();
     }
 
@@ -102,8 +105,7 @@ public class MainClass {
         }
 
         try (Box box = auto.cube()) {
-            //searchDistinct() , search()
-            for (KeyWord kw : engine.search(box, "版本控 address")) {
+            for (KeyWord kw : engine.search(box, "版本控")) {
                 System.out.println(kw.toFullString());
                 System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                 System.out.println();
@@ -123,34 +125,41 @@ public class MainClass {
         byte[] bs = new byte[(int) rf.length()];
         rf.readFully(bs);
 
-        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
+        //iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
         DB db = new DB(1);
 
-        final String[] ts = new String[]{
-            new String(bs)
-        };
+        final String[] ts = new String(bs).split("。");
         rf.close();
 
-        Engine engine = new Engine();
+        final Engine engine = new Engine();
         engine.Config(db.getConfig().DBConfig);
 
-        AutoBox auto = db.open();
+        final AutoBox auto = db.open();
 
-        String fulltext = "";
         long begin;
+        /*
+        ExecutorService pool = Executors.newFixedThreadPool(8);
         begin = System.currentTimeMillis();
-        for (int i = 0; i < 1; i++) {
-            fulltext += ts[0];
 
-            try (Box box = auto.cube()) {
-                engine.indexText(box, i, ts[0], false);
-                box.commit().Assert();
-            }
-
+        for (int i = 0; i < ts.length; i++) {
+            final int tsi = i;
+            pool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try (Box box = auto.cube()) {
+                        engine.indexText(box, tsi, ts[tsi], false);
+                        box.commit().Assert();
+                    }
+                }
+            });
         }
+        pool.shutdown();
+        pool.awaitTermination(1, TimeUnit.DAYS);
         System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
-
+         */
         String strkw = "黄蓉";
+        String strkw2 = "郭靖";
+        String strkw3 = "洪七公";
         //strkw = "时察";
         //strkw = "的";
         // strkw = "七十二路";
@@ -161,7 +170,8 @@ public class MainClass {
             begin = System.currentTimeMillis();
             c = 0;
             try (Box box = auto.cube()) {
-                for (KeyWord kw : engine.search(box, strkw)) {
+                //search  searchDistinct
+                for (KeyWord kw : engine.searchDistinct(box, strkw + " " + strkw2 + " " + strkw3)) {
                     c++;
                     //System.out.println(engine.getDesc(ts[0], kw, 15));
                     //System.out.println(kw.toFullString());
@@ -172,12 +182,13 @@ public class MainClass {
 
         begin = System.currentTimeMillis();
         c = 0;
-        int p = fulltext.indexOf(strkw);
-        while (p > 0) {
-            c++;
-            p = fulltext.indexOf(strkw, p + 2);
+
+        for (int i = 0; i < ts.length; i++) {
+            if (ts[i].contains(strkw) && ts[i].contains(strkw2) && ts[i].contains(strkw3)) {
+                c++;
+            }
         }
-        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
+        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + ts.length);
 
     }
 

@@ -96,6 +96,39 @@ public class Engine {
         return sUtil.getDesc(str, kw, length);
     }
 
+    public Iterable<KeyWord> searchDistinct(final Box box, String str) {
+        final Iterator<KeyWord> it = search(box, str).iterator();
+        return new Iterable<KeyWord>() {
+
+            @Override
+            public Iterator<KeyWord> iterator() {
+                return new EngineIterator<KeyWord>() {
+                    long c_id = -1;
+                    KeyWord current;
+
+                    @Override
+                    public boolean hasNext() {
+                        while (it.hasNext()) {
+                            current = it.next();
+                            if (current.getID() == c_id) {
+                                continue;
+                            }
+                            c_id = current.getID();
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public KeyWord next() {
+                        return current;
+                    }
+
+                };
+            }
+        };
+    }
+
     public Iterable<KeyWord> search(final Box box, String str) {
         char[] cs = sUtil.clear(str);
         ArrayList<KeyWord> map = util.fromString(-1, cs, false);
@@ -137,26 +170,7 @@ public class Engine {
             }
         }
         final MaxID maxId = new MaxID();
-        final Iterator<KeyWord> iter = search(box, kws.toArray(new KeyWord[0]), maxId).iterator();
-        return new Iterable<KeyWord>() {
-            @Override
-            public Iterator<KeyWord> iterator() {
-                return new Iterator<KeyWord>() {
-                    @Override
-                    public boolean hasNext() {
-                        return iter.hasNext();
-                    }
-
-                    @Override
-                    public KeyWord next() {
-                        KeyWord kw = iter.next();
-                        maxId.id--;
-                        return kw;
-                    }
-
-                };
-            }
-        };
+        return search(box, kws.toArray(new KeyWord[0]), maxId);
     }
 
     private Iterable<KeyWord> search(final Box box, final KeyWord[] kws, MaxID maxId) {
@@ -313,7 +327,7 @@ public class Engine {
                             return false;
                         }
                     }
-                    
+
                     if (firstMaxId > maxId.id) {
                         firstMaxId = maxId.id;
 
