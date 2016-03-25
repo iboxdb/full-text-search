@@ -308,7 +308,12 @@ public class Engine {
 
                 @Override
                 public boolean hasNext() {
-
+                    if (con != null) {
+                        if (con.I != maxId.id) {
+                            return false;
+                        }
+                    }
+                    
                     if (firstMaxId > maxId.id) {
                         firstMaxId = maxId.id;
 
