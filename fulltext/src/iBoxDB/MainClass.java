@@ -5,6 +5,7 @@ import iBoxDB.LocalServer.*;
 import iBoxDB.fulltext.Engine;
 import iBoxDB.fulltext.KeyWord;
 import iBoxDB.fulltext.KeyWordN;
+import iBoxDB.fulltext.StringUtil;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -22,14 +23,14 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        test1();
-        //test_big();
+        //test1();
+        test_big_n();
         //test_big_e();
     }
 
     public static void test1() {
-        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(2);
-        DB db = new DB(2);
+        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(3);
+        DB db = new DB(3);
 
         final String[] ts = new String[]{
             //ID=0
@@ -118,19 +119,48 @@ public class MainClass {
         }
     }
 
-    public static void test_big() throws FileNotFoundException, IOException, InterruptedException {
-        String path = System.getProperty("user.home") + "/hero.txt";
+    public static void test_big_n() throws FileNotFoundException, IOException, InterruptedException {
+        String book = "/hero.txt";
+        long dbid = 1;
+        boolean rebuild = false;
+        String split = "。";
+        String strkw = "黄蓉 郭靖 洪七公";
+        strkw = "黄蓉 郭靖";
+        //strkw = "黄蓉";
+        //strkw = "时察";
+        //strkw = "的";
+        //strkw = "七十二路";
+        //strkw = "十八掌";
+        test_big(book, dbid, rebuild, split, strkw);
+    }
+
+    public static void test_big_e() throws FileNotFoundException, IOException, InterruptedException {
+        String book = "/phoenix.txt";
+        long dbid = 2;
+        boolean rebuild = false;
+        String split = "\\.";
+        String strkw = "Harry";
+        strkw = "Harry Philosopher";
+        strkw = "Philosopher";
+        test_big(book, dbid, rebuild, split, strkw);
+    }
+
+    private static void test_big(String book, long dbid, boolean rebuild,
+            String split, String strkw) throws FileNotFoundException, IOException, InterruptedException {
+        String path = System.getProperty("user.home") + book;
 
         RandomAccessFile rf = new RandomAccessFile(path, "r");
         byte[] bs = new byte[(int) rf.length()];
         rf.readFully(bs);
 
-        //iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
-        DB db = new DB(1);
+        if (rebuild) {
+            iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(dbid);
+        }
+        DB db = new DB(dbid);
 
         rf.close();
 
-        String[] tstmp = new String(bs).split("。");
+        String[] tstmp = new String(bs).split(split);
         ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < 2; i++) {
             for (String str : tstmp) {
@@ -145,33 +175,26 @@ public class MainClass {
         final AutoBox auto = db.open();
 
         long begin;
-        /*
-        ExecutorService pool = Executors.newFixedThreadPool(8);
-        begin = System.currentTimeMillis();
+        if (rebuild) {
+            ExecutorService pool = Executors.newFixedThreadPool(8);
+            begin = System.currentTimeMillis();
 
-        for (int i = 0; i < ts.length; i++) {
-            final int tsi = i;
-            pool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try (Box box = auto.cube()) {
-                        engine.indexText(box, tsi, ts[tsi], false);
-                        box.commit().Assert();
+            for (int i = 0; i < ts.length; i++) {
+                final int tsi = i;
+                pool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try (Box box = auto.cube()) {
+                            engine.indexText(box, tsi, ts[tsi], false);
+                            box.commit().Assert();
+                        }
                     }
-                }
-            });
+                });
+            }
+            pool.shutdown();
+            pool.awaitTermination(1, TimeUnit.DAYS);
+            System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
         }
-        pool.shutdown();
-        pool.awaitTermination(1, TimeUnit.DAYS);
-        System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
-         */
-        String strkw = "黄蓉";
-        String strkw2 = "郭靖";
-        String strkw3 = "洪七公";
-        //strkw = "时察";
-        //strkw = "的";
-        // strkw = "七十二路";
-        //strkw = "十八掌";
 
         int c;
         for (int i = 0; i < 20; i++) {
@@ -179,7 +202,7 @@ public class MainClass {
             c = 0;
             try (Box box = auto.cube()) {
                 //search  searchDistinct
-                for (KeyWord kw : engine.searchDistinct(box, strkw + " " + strkw2 + " " + strkw3)) {
+                for (KeyWord kw : engine.searchDistinct(box, strkw)) {
                     c++;
                     //System.out.println(engine.getDesc(ts[0], kw, 15));
                     //System.out.println(kw.toFullString());
@@ -188,88 +211,31 @@ public class MainClass {
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
         }
 
+        for (int i = 0; i < ts.length; i++) {
+            ts[i] = ts[i].toLowerCase() + " ";
+        }
+        strkw = strkw.toLowerCase();
+        String[] kws = strkw.split(" ");
+        StringUtil sutil = new StringUtil();
+
         begin = System.currentTimeMillis();
         c = 0;
-
+        Test:
         for (int i = 0; i < ts.length; i++) {
-            if (ts[i].contains(strkw) && ts[i].contains(strkw2) && ts[i].contains(strkw3)) {
-                c++;
+            for (int j = 0; j < kws.length; j++) {
+                int p = ts[i].indexOf(kws[j]);
+                if (p < 0) {
+                    continue Test;
+                }
+                char pc = ts[i].charAt(p + kws[j].length());
+                if (sutil.isWord(pc)) {
+                    //System.out.println(pc);
+                    continue Test;
+                }
             }
+            c++;
         }
         System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + ts.length);
-
-    }
-
-    public static void test_big_e() throws FileNotFoundException, IOException, InterruptedException {
-        String path = System.getProperty("user.home") + "/phoenix.txt";
-        RandomAccessFile rf = new RandomAccessFile(path, "r");
-        byte[] bs = new byte[(int) rf.length()];
-        rf.readFully(bs);
-
-        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(1);
-        DB db = new DB(1);
-
-        String ts[];
-        {
-            ArrayList<String> tts = new ArrayList<String>();
-            String sbs = new String(bs);
-            int begin = 0;
-            int end = begin + 2000;
-            while (end <= sbs.length() && begin != end) {
-                tts.add(sbs.substring(begin, end));
-                begin = end;
-                end = begin + 2000;
-                if (end > sbs.length()) {
-                    end = sbs.length();
-                }
-            }
-            //tts.addAll((ArrayList) tts.clone()); 
-            ts = tts.toArray(new String[0]);
-        }
-        rf.close();
-
-        Engine engine = new Engine();
-        engine.Config(db.getConfig().DBConfig);
-
-        AutoBox auto = db.open();
-
-        long begin;
-        begin = System.currentTimeMillis();
-        try (Box box = auto.cube()) {
-            for (int i = 0; i < ts.length; i++) {
-                engine.indexText(box, i, ts[i], false);
-            }
-            box.commit().Assert();
-        }
-        System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
-
-        String strkw = "Harry";
-        //strkw = "Philosopher";
-        int c;
-
-        for (int i = 0; i < 20; i++) {
-            begin = System.currentTimeMillis();
-            c = 0;
-            try (Box box = auto.cube()) {
-                for (KeyWord kw : engine.search(box, strkw)) {
-                    c++;
-                    //System.out.println(engine.getDesc(ts[0], kw, 15));
-                    //System.out.println(kw.toFullString());
-                }
-            }
-            System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
-        }
-
-        begin = System.currentTimeMillis();
-        c = 0;
-        for (int i = 0; i < ts.length; i++) {
-            int p = ts[i].indexOf(strkw);
-            if (p > 0) {
-                c++;
-            }
-        }
-        System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
-        //System.out.println(ts.length);
 
     }
 

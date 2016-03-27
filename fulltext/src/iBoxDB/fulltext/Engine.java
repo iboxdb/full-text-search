@@ -276,10 +276,6 @@ public class Engine {
                 } else {
                     return emptySearch;
                 }
-                /*
-                return new Index2KeyWordNIterable(box.select(Object.class, "from N where K==? & I==? & P==?",
-                        kw.getKeyWord(), con.getID(), (con.getPosition() + ((KeyWordN) con).size())),
-                        box, kw, con, asWord, maxId);*/
             }
         }
     }
