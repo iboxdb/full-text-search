@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MainClass {
 
@@ -23,8 +24,8 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        //test1();
-        test_big_n();
+        test1();
+        //test_big_n();
         //test_big_e();
     }
 
@@ -125,7 +126,7 @@ public class MainClass {
         boolean rebuild = false;
         String split = "。";
         String strkw = "黄蓉 郭靖 洪七公";
-        strkw = "黄蓉 郭靖";
+        //strkw = "黄蓉 郭靖";
         //strkw = "黄蓉";
         //strkw = "时察";
         //strkw = "的";
@@ -178,14 +179,14 @@ public class MainClass {
         if (rebuild) {
             ExecutorService pool = Executors.newFixedThreadPool(8);
             begin = System.currentTimeMillis();
-
+            final AtomicLong rbcount = new AtomicLong(0);
             for (int i = 0; i < ts.length; i++) {
                 final int tsi = i;
                 pool.execute(new Runnable() {
                     @Override
                     public void run() {
                         try (Box box = auto.cube()) {
-                            engine.indexText(box, tsi, ts[tsi], false);
+                            rbcount.addAndGet(engine.indexText(box, tsi, ts[tsi], false));
                             box.commit().Assert();
                         }
                     }
@@ -193,7 +194,7 @@ public class MainClass {
             }
             pool.shutdown();
             pool.awaitTermination(1, TimeUnit.DAYS);
-            System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0));
+            System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + rbcount.get());
         }
 
         int c;

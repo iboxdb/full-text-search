@@ -13,11 +13,12 @@ public class Engine {
         KeyWord.config(config);
     }
 
-    public boolean indexText(Box box, long id, String str, boolean isRemove) {
+    public long indexText(Box box, long id, String str, boolean isRemove) {
         if (id == -1) {
             // -1 is internal default value as NULL
-            return false;
+            return -1;
         }
+        long itCount = 0;
         char[] cs = sUtil.clear(str);
         ArrayList<KeyWord> map = util.fromString(id, cs, true);
 
@@ -38,9 +39,10 @@ public class Engine {
             } else {
                 binder.insert(kw, 1);
             }
+            itCount++;
         }
 
-        return true;
+        return itCount;
     }
 
     public LinkedHashSet<String> discover(final Box box,
@@ -240,14 +242,7 @@ public class Engine {
     private static final Iterable<KeyWord> emptySearch = new ArrayList();
 
     private static Iterable<KeyWord> search(Box box, KeyWord kw, KeyWord con, boolean asWord, MaxID maxId) {
-        if (con != null) {
-            if (con.I > maxId.id) {
-                throw new RuntimeException("Unreachable");
-                //return emptySearch;
-            } else {
-                maxId.id = con.I;
-            }
-        }
+
         if (kw instanceof KeyWordE) {
             asWord = true;
             return new Index2KeyWordEIterable(box.select(Object.class, "from E where K==? & I<=?",
@@ -330,7 +325,7 @@ public class Engine {
                 final Box box, final KeyWord kw, final KeyWord con, final boolean asWord, final MaxID maxId) {
             this.index = (Iterator<Object[]>) (Object) findex.iterator();
             this.iterator = new EngineIterator<KeyWord>() {
-                long firstMaxId = maxId.id;
+                long currentMaxId = maxId.id;
                 KeyWord cache;
 
                 @Override
@@ -341,8 +336,8 @@ public class Engine {
                         }
                     }
 
-                    if (firstMaxId > maxId.id) {
-                        firstMaxId = maxId.id;
+                    if (currentMaxId > (maxId.id + 1) && currentMaxId != Long.MAX_VALUE) {
+                        currentMaxId = maxId.id;
 
                         Iterable<KeyWord> tmp = search(box, kw, con, asWord, maxId);
                         if (tmp instanceof Index2KeyWordIterable) {
@@ -355,7 +350,7 @@ public class Engine {
 
                         long osid = (Long) os[1];
                         maxId.id = osid;
-                        firstMaxId = maxId.id;
+                        currentMaxId = maxId.id;
 
                         if (con != null) {
                             if (con.I != maxId.id) {
