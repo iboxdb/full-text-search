@@ -127,6 +127,7 @@ public class MainClass {
         String split = "。";
         String strkw = "黄蓉 郭靖 洪七公";
         //strkw = "黄蓉 郭靖";
+        //strkw = "郭靖 黄蓉";
         //strkw = "黄蓉";
         //strkw = "时察";
         //strkw = "的";
@@ -142,7 +143,7 @@ public class MainClass {
         String split = "\\.";
         String strkw = "Harry";
         strkw = "Harry Philosopher";
-        strkw = "Philosopher";
+        //strkw = "Philosopher";
         test_big(book, dbid, rebuild, split, strkw);
     }
 
@@ -172,6 +173,7 @@ public class MainClass {
 
         final Engine engine = new Engine();
         engine.Config(db.getConfig().DBConfig);
+        //engine.maxSearchTime = 3000;
 
         final AutoBox auto = db.open();
 

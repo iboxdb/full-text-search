@@ -9,6 +9,8 @@ public class Engine {
     final Util util = new Util();
     final StringUtil sUtil = new StringUtil();
 
+    public long maxSearchTime = Long.MAX_VALUE;
+
     public void Config(DatabaseConfig config) {
         KeyWord.config(config);
     }
@@ -171,7 +173,7 @@ public class Engine {
                 kws.add(kw);
             }
         }
-        final MaxID maxId = new MaxID();
+        final MaxID maxId = new MaxID(this.maxSearchTime);
         return search(box, kws.toArray(new KeyWord[0]), maxId);
     }
 
@@ -277,15 +279,19 @@ public class Engine {
 
     private static Iterable<KeyWord> lessMatch(Box box, KeyWord kw) {
         if (kw instanceof KeyWordE) {
-            return new Index2KeyWordEIterable(box.select(Object.class, "from E where K<=? limit 0, 50", kw.getKeyWord()), null, null, null, true, new MaxID());
+            return new Index2KeyWordEIterable(box.select(Object.class, "from E where K<=? limit 0, 50", kw.getKeyWord()), null, null, null, true, new MaxID(Long.MAX_VALUE));
         } else {
-            return new Index2KeyWordNIterable(box.select(Object.class, "from N where K<=? limit 0, 50", kw.getKeyWord()), null, null, null, true, new MaxID());
+            return new Index2KeyWordNIterable(box.select(Object.class, "from N where K<=? limit 0, 50", kw.getKeyWord()), null, null, null, true, new MaxID(Long.MAX_VALUE));
         }
     }
 
     private static final class MaxID {
 
-        public long id = Long.MAX_VALUE;
+        public MaxID(long maxSearchTime) {
+            maxTime = maxSearchTime;
+        }
+        protected long id = Long.MAX_VALUE;
+        public long maxTime;
     }
 
     private static final class Index2KeyWordEIterable extends Index2KeyWordIterable {
@@ -330,6 +336,9 @@ public class Engine {
 
                 @Override
                 public boolean hasNext() {
+                    if (maxId.id == -1) {
+                        return false;
+                    }
                     if (con != null) {
                         if (con.I != maxId.id) {
                             return false;
@@ -346,6 +355,10 @@ public class Engine {
                     }
 
                     if (index.hasNext()) {
+                        if (--maxId.maxTime < 0) {
+                            maxId.id = -1;
+                            return false;
+                        }
                         Object[] os = index.next();
 
                         long osid = (Long) os[1];
@@ -365,6 +378,7 @@ public class Engine {
 
                         return true;
                     }
+                    maxId.id = -1;
                     return false;
                 }
 
