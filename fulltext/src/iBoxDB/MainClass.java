@@ -24,9 +24,9 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        test1();
+        //test1();
         //test_big_n();
-        //test_big_e();
+        test_big_e();
     }
 
     public static void test1() {
@@ -126,7 +126,7 @@ public class MainClass {
         boolean rebuild = false;
         String split = "。";
         String strkw = "黄蓉 郭靖 洪七公";
-        //strkw = "黄蓉 郭靖";
+        //strkw = "黄蓉 郭靖 公";
         //strkw = "郭靖 黄蓉";
         //strkw = "黄蓉";
         //strkw = "时察";
