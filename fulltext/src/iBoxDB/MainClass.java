@@ -24,9 +24,9 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        //test1();
+        test1();
         //test_big_n();
-        test_big_e();
+        //test_big_e();
     }
 
     public static void test1() {
@@ -97,13 +97,13 @@ public class MainClass {
             AutoBox auto = db.open();
 
             for (int i = 0; i < ts.length; i++) {
-                try (Box box = auto.cube()) {
-                    if (tran == 0) {
+                if (tran == 0) {
+                    try (Box box = auto.cube()) {
                         engine.indexText(box, i, ts[i], false);
-                    } else {
-                        engine.indexTextNoTran(auto, 3, i, ts[i], false);
+                        box.commit().Assert();
                     }
-                    box.commit().Assert();
+                } else {
+                    engine.indexTextNoTran(auto, 3, i, ts[i], false);
                 }
             }
             try (Box box = auto.cube()) {
