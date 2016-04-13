@@ -30,8 +30,6 @@ public class MainClass {
     }
 
     public static void test1() {
-        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(3);
-        DB db = new DB(3);
 
         final String[] ts = new String[]{
             //ID=0
@@ -90,40 +88,51 @@ public class MainClass {
             + "잘못 고쳤을 때도 쉽게 복구할 수 있다. HAS GIT 이런 모든 장점을 큰 노력 없이 이용할 수 있다."
         };
 
-        Engine engine = new Engine();
-        engine.Config(db.getConfig().DBConfig);
+        for (int tran = 0; tran < 2; tran++) {
+            iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(3);
+            DB db = new DB(3);
+            Engine engine = new Engine();
+            engine.Config(db.getConfig().DBConfig);
 
-        AutoBox auto = db.open();
+            AutoBox auto = db.open();
 
-        for (int i = 0; i < ts.length; i++) {
+            for (int i = 0; i < ts.length; i++) {
+                try (Box box = auto.cube()) {
+                    if (tran == 0) {
+                        engine.indexText(box, i, ts[i], false);
+                    } else {
+                        engine.indexTextNoTran(auto, 3, i, ts[i], false);
+                    }
+                    box.commit().Assert();
+                }
+            }
             try (Box box = auto.cube()) {
-                engine.indexText(box, i, ts[i], false);
+                //engine.indexText(box, 4, ts[4], true);
                 box.commit().Assert();
             }
-        }
-        try (Box box = auto.cube()) {
-            //engine.indexText(box, 4, ts[4], true);
-            box.commit().Assert();
-        }
 
-        try (Box box = auto.cube()) {
-            for (KeyWord kw : engine.search(box, "版本控 nosql")) {
-                System.out.println(kw.toFullString());
-                System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
-                System.out.println();
+            try (Box box = auto.cube()) {
+                for (KeyWord kw : engine.search(box, "版本控 nosql")) {
+                    System.out.println(kw.toFullString());
+                    System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
+                    System.out.println();
+                }
+                for (String skw : engine.discover(box,
+                        'n', 's', 2,
+                        '\u2E80', '\u9fa5', 2)) {
+                    System.out.println(skw);
+                }
             }
-            for (String skw : engine.discover(box,
-                    'n', 's', 2,
-                    '\u2E80', '\u9fa5', 2)) {
-                System.out.println(skw);
-            }
+            db.close();
+            System.out.println("----------------------");
         }
     }
 
     public static void test_big_n() throws FileNotFoundException, IOException, InterruptedException {
         String book = "/hero.txt";
         long dbid = 1;
-        boolean rebuild = false;
+        boolean rebuild = true;
+        int istran = 0;
         String split = "。";
         String strkw = "黄蓉 郭靖 洪七公";
         //strkw = "黄蓉 郭靖 公";
@@ -133,22 +142,23 @@ public class MainClass {
         //strkw = "的";
         //strkw = "七十二路";
         //strkw = "十八掌";
-        test_big(book, dbid, rebuild, split, strkw);
+        test_big(book, dbid, rebuild, split, strkw, istran);
     }
 
     public static void test_big_e() throws FileNotFoundException, IOException, InterruptedException {
         String book = "/phoenix.txt";
         long dbid = 2;
-        boolean rebuild = false;
+        boolean rebuild = true;
+        int istran = 10;
         String split = "\\.";
         String strkw = "Harry";
         strkw = "Harry Philosopher";
         //strkw = "Philosopher";
-        test_big(book, dbid, rebuild, split, strkw);
+        test_big(book, dbid, rebuild, split, strkw, istran);
     }
 
     private static void test_big(String book, long dbid, boolean rebuild,
-            String split, String strkw) throws FileNotFoundException, IOException, InterruptedException {
+            String split, String strkw, final int istran) throws FileNotFoundException, IOException, InterruptedException {
         String path = System.getProperty("user.home") + book;
 
         RandomAccessFile rf = new RandomAccessFile(path, "r");
@@ -187,9 +197,13 @@ public class MainClass {
                 pool.execute(new Runnable() {
                     @Override
                     public void run() {
-                        try (Box box = auto.cube()) {
-                            rbcount.addAndGet(engine.indexText(box, tsi, ts[tsi], false));
-                            box.commit().Assert();
+                        if (istran < 1) {
+                            try (Box box = auto.cube()) {
+                                rbcount.addAndGet(engine.indexText(box, tsi, ts[tsi], false));
+                                box.commit().Assert();
+                            }
+                        } else {
+                            rbcount.addAndGet(engine.indexTextNoTran(auto, istran, tsi, ts[tsi], false));
                         }
                     }
                 });
