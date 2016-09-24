@@ -24,9 +24,50 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        test1();
+        //test1();
         //test_big_n();
         //test_big_e();
+
+        test_order();
+    }
+
+    public static void test_order() {
+        iBoxDB.LocalServer.BoxSystem.DBDebug.DeleteDBFiles(3);
+        DB db = new DB(3);
+        Engine engine = new Engine();
+        engine.Config(db.getConfig().DBConfig);
+
+        AutoBox auto = db.open();
+        int count = 100;
+        final String[] ts = new String[count];
+        for (int i = 0; i < count; i++) {
+            ts[i] = "test " + i;
+        }
+        for (int i = 0; i < count; i++) {
+            try (Box box = auto.cube()) {
+                engine.indexText(box, i, ts[i], false);
+                box.commit().Assert();
+            }
+        }
+
+        boolean doagain = true;
+        long startId = Long.MAX_VALUE;
+        long tcount = 0;
+        while (doagain && (startId >= 0)) {
+            doagain = false;
+            try (Box box = auto.cube()) {
+                for (KeyWord kw : engine.searchDistinct(box, "test", startId, 9)) {
+                    System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
+                    tcount++;
+                    doagain = true;
+                    startId = kw.getID() - 1;
+                }
+            }
+            System.out.println();
+            System.out.println(startId);
+        }
+        System.out.println(count + " == " + tcount);
+        auto.getDatabase().close();
     }
 
     public static void test1() {
