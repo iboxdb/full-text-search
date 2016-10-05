@@ -193,41 +193,10 @@ public class Engine {
         if (map.size() > KeyWord.MAX_WORD_LENGTH || map.isEmpty()) {
             return new ArrayList();
         }
-        ArrayList<KeyWord> kws = new ArrayList<KeyWord>();
 
-        for (int i = 0; i < map.size(); i++) {
-            KeyWord kw = map.get(i);
-            if (kw instanceof KeyWordE) {
-                String s = kw.getKeyWord().toString();
-                if ((s.length() > 2) && (!sUtil.mvends.contains(s))) {
-                    kws.add(kw);
-                    map.set(i, null);
-                }
-            } else {
-                KeyWordN kwn = (KeyWordN) kw;
-                if (kwn.size() >= 2) {
-                    kws.add(kw);
-                    map.set(i, null);
-                } else if (kws.size() > 0) {
-                    KeyWord p = kws.get(kws.size() - 1);
-                    if (p instanceof KeyWordN) {
-                        if (kwn.getPosition() == (p.getPosition() + ((KeyWordN) p).size())) {
-                            kws.add(kw);
-                            map.set(i, null);
-                        }
-                    }
-                }
-            }
-        }
-        for (int i = 0; i < map.size(); i++) {
-            KeyWord kw = map.get(i);
-            if (kw != null) {
-                kws.add(kw);
-            }
-        }
         final MaxID maxId = new MaxID(this.maxSearchTime);
         maxId.id = startId;
-        return search(box, kws.toArray(new KeyWord[0]), maxId);
+        return search(box, map.toArray(new KeyWord[0]), maxId);
     }
 
     private Iterable<KeyWord> search(final Box box, final KeyWord[] kws, MaxID maxId) {
@@ -292,7 +261,6 @@ public class Engine {
     private static Iterable<KeyWord> search(final Box box,
             final KeyWord kw, final KeyWord con, final Engine.MaxID maxId) {
         if (con != null && kw.isLinked) {
-            KeyWord x = null;
 
             int offset;
             String table;
@@ -306,14 +274,35 @@ public class Engine {
                 table = "/N";
                 aclass = KeyWordN.class;
             }
-            x = (KeyWord) box.d(table, kw.getKeyWord(),
+            final KeyWord x = (KeyWord) box.d(table, kw.getKeyWord(),
                     con.getID(), (con.getPosition() + con.size() + offset))
                     .select(aclass);
             if (x != null) {
-                ArrayList<KeyWord> r = new ArrayList<KeyWord>(1);
-                r.add(x);
-                return r;
+                return new Iterable<KeyWord>() {
+                    @Override
+                    public Iterator<KeyWord> iterator() {
+                        return new EngineIterator<KeyWord>() {
+                            boolean hasNext = true;
+
+                            @Override
+                            public boolean hasNext() {
+                                if (hasNext) {
+                                    hasNext = false;
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            @Override
+                            public KeyWord next() {
+                                return x;
+                            }
+
+                        };
+                    }
+                ;
             }
+            ;}
             return emptySearch;
         }
 
