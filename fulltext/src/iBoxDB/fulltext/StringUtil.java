@@ -1,5 +1,6 @@
 package iBoxDB.fulltext;
 
+import iBoxDB.LocalServer.NotColumn;
 import java.util.*;
 
 public class StringUtil {
@@ -47,6 +48,9 @@ public class StringUtil {
 
         set = new HashSet<Character>();
         for (char c : s.toCharArray()) {
+            if (isWord(c)) {
+                continue;
+            }
             set.add(c);
         }
         set.add((char) 0);
@@ -68,7 +72,7 @@ public class StringUtil {
     //Chinese  [\u2E80-\u9fa5]
     //Japanese [\u0800-\u4e00]|
     //Korean   [\uAC00-\uD7A3] [\u3130-\u318F] 
-    public boolean isWord(char c) {
+    public final boolean isWord(char c) {
         //English
         if (c >= 'a' && c <= 'z') {
             return true;
@@ -84,7 +88,8 @@ public class StringUtil {
         if (c >= 0xc0 && c <= 0xff) {
             return true;
         }
-        return c == '-' || c == '#';
+        //special
+        return c == '-' || c == '#' || c == '"';
     }
 
     public char[] clear(String str) {
@@ -135,6 +140,7 @@ public class StringUtil {
     }
 
     public void correctInput(ArrayList<KeyWord> kws) {
+
         for (int i = 0; i < kws.size(); i++) {
             KeyWord kw = (KeyWord) kws.get(i);
             if (kw instanceof KeyWordE) {
@@ -146,7 +152,7 @@ public class StringUtil {
                     } else {
                         KeyWordN kwn = new KeyWordN();
                         kwn.I = kw.I;
-                        kwn.P = kw.P + 1;
+                        kwn.P = kw.P;
                         switch (str.length()) {
                             case 1:
                                 kwn.longKeyWord(str.charAt(0), (char) 0, (char) 0);
@@ -162,6 +168,18 @@ public class StringUtil {
                 }
             }
         }
+    }
+
+    public KeyWordE __getOriginalForm(KeyWordE src) {
+        String of = antetypes.get(src.K);
+        if (of != null) {
+            KeyWordE e = new KeyWordE();
+            e.I = src.I;
+            e.P = src.P;
+            e.K = of;
+            return e;
+        }
+        return null;
     }
 
 }

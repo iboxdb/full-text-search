@@ -24,11 +24,11 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        //test1();
+        test1();
         //test_big_n();
         //test_big_e();
 
-        test_order();
+        //test_order();
     }
 
     public static void test_order() {
@@ -43,7 +43,7 @@ public class MainClass {
         for (int i = 0; i < count; i++) {
             ts[i] = "test " + i;
         }
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < ts.length; i++) {
             try (Box box = auto.cube()) {
                 engine.indexText(box, i, ts[i], false);
                 box.commit().Assert();
@@ -103,7 +103,7 @@ public class MainClass {
             "關於版本控制\n"
             + "什麼是版本控制？ 以及為什麼讀者會在意它？ "
             + "版本控制是一個能夠記錄一個或一組檔案在某一段時間的變更，"
-            + "使得讀者以後能取回特定版本的系統。has NoSQL 1234567890ABCDEFGH"
+            + "使得讀者以後能取回特定版本的系統。has NoSQL 1234567890ABCDEFGH java"
             + "在本書的範例中，讀者會學到如何對軟體的原始碼做版本控制。"
             + " 即使實際上讀者幾乎可以針對電腦上任意型態的檔案做版本控制。",
             //ID=4
@@ -153,7 +153,7 @@ public class MainClass {
             }
 
             try (Box box = auto.cube()) {
-                for (KeyWord kw : engine.search(box, "版本控 nosql")) {
+                for (KeyWord kw : engine.search(box, "\"Java NoSQL\"")) {
                     System.out.println(kw.toFullString());
                     System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                     System.out.println();
@@ -172,7 +172,7 @@ public class MainClass {
     public static void test_big_n() throws FileNotFoundException, IOException, InterruptedException {
         String book = "/hero.txt";
         long dbid = 1;
-        boolean rebuild = true;
+        boolean rebuild = false;
         int istran = 0;
         String split = "。";
         String strkw = "黄蓉 郭靖 洪七公";

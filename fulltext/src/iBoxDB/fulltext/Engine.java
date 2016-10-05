@@ -233,23 +233,16 @@ public class Engine {
     private Iterable<KeyWord> search(final Box box, final KeyWord[] kws, MaxID maxId) {
 
         if (kws.length == 1) {
-            return search(box, kws[0], (KeyWord) null, false, maxId);
-        }
-
-        boolean asWord = true;
-        KeyWord kwa = kws[kws.length - 2];
-        KeyWord kwb = kws[kws.length - 1];
-        if ((kwa instanceof KeyWordN) && (kwb instanceof KeyWordN)) {
-            asWord = kwb.getPosition() != (kwa.getPosition() + ((KeyWordN) kwa).size());
+            return search(box, kws[0], (KeyWord) null, maxId);
         }
 
         return search(box, kws[kws.length - 1],
                 search(box, Arrays.copyOf(kws, kws.length - 1), maxId),
-                asWord, maxId);
+                maxId);
     }
 
     private Iterable<KeyWord> search(final Box box, final KeyWord nw,
-            Iterable<KeyWord> condition, final boolean isWord, final MaxID maxId) {
+            Iterable<KeyWord> condition, final MaxID maxId) {
         final Iterator<KeyWord> cd = condition.iterator();
         return new Iterable<KeyWord>() {
 
@@ -267,13 +260,13 @@ public class Engine {
                         }
                         while (cd.hasNext()) {
                             r1_con = cd.next();
-                            if (isWord) {
+                            if (!nw.isLinked) {
                                 if (r1_id == r1_con.getID()) {
                                     continue;
                                 }
                             }
                             r1_id = r1_con.getID();
-                            r1 = search(box, nw, r1_con, isWord, maxId).iterator();
+                            r1 = search(box, nw, r1_con, maxId).iterator();
                             if (r1.hasNext()) {
                                 return true;
                             }
@@ -296,158 +289,89 @@ public class Engine {
 
     private static final Iterable<KeyWord> emptySearch = new ArrayList();
 
-    private static Iterable<KeyWord> search(Box box, KeyWord kw, KeyWord con, boolean asWord, MaxID maxId) {
+    private static Iterable<KeyWord> search(final Box box,
+            final KeyWord kw, final KeyWord con, final Engine.MaxID maxId) {
+        if (con != null && kw.isLinked) {
+            KeyWord x = null;
 
-        if (kw instanceof KeyWordE) {
-            asWord = true;
-            return new Index2KeyWordEIterable(box.select(Object.class, "from /E where K==? & I<=?",
-                    kw.getKeyWord(), maxId.id), box, kw, con, asWord, maxId);
-        } else {
-
-            if (con instanceof KeyWordE) {
-                asWord = true;
-            }
-            if (con == null || asWord) {
-                asWord = true;
-                return new Index2KeyWordNIterable(box.select(Object.class, "from /N where K==? & I<=?",
-                        kw.getKeyWord(), maxId.id), box, kw, con, asWord, maxId);
+            int offset;
+            String table;
+            Class<?> aclass;
+            if (kw instanceof KeyWordE) {
+                offset = 1;
+                table = "/E";
+                aclass = KeyWordE.class;
             } else {
-                Object[] os = (Object[]) box.d("/N", kw.getKeyWord(),
-                        con.getID(), (con.getPosition() + ((KeyWordN) con).size()))
-                        .select(Object.class);
-                if (os != null) {
-                    KeyWordN cache = new KeyWordN();
-                    cache.setKeyWord(os[0]);
-                    cache.I = (Long) os[1];
-                    cache.P = (Integer) os[2];
-                    ArrayList<KeyWord> r = new ArrayList<KeyWord>(1);
-                    r.add(cache);
-                    return r;
-                } else {
-                    return emptySearch;
-                }
+                offset = 0;
+                table = "/N";
+                aclass = KeyWordN.class;
             }
-        }
-    }
-
-    private static Iterable<KeyWord> lessMatch(Box box, KeyWord kw) {
-        if (kw instanceof KeyWordE) {
-            return new Index2KeyWordEIterable(box.select(Object.class, "from /E where K<=? limit 0, 50", kw.getKeyWord()), null, null, null, true, new MaxID(Long.MAX_VALUE));
-        } else {
-            return new Index2KeyWordNIterable(box.select(Object.class, "from /N where K<=? limit 0, 50", kw.getKeyWord()), null, null, null, true, new MaxID(Long.MAX_VALUE));
-        }
-    }
-
-    private static final class MaxID {
-
-        public MaxID(long maxSearchTime) {
-            maxTime = maxSearchTime;
-        }
-        protected long id = Long.MAX_VALUE;
-        public long maxTime;
-    }
-
-    private static final class Index2KeyWordEIterable extends Index2KeyWordIterable {
-
-        public Index2KeyWordEIterable(Iterable<Object> findex,
-                Box box, KeyWord kw, KeyWord con, boolean asWord, MaxID maxId) {
-            super(findex, box, kw, con, asWord, maxId);
+            x = (KeyWord) box.d(table, kw.getKeyWord(),
+                    con.getID(), (con.getPosition() + con.size() + offset))
+                    .select(aclass);
+            if (x != null) {
+                ArrayList<KeyWord> r = new ArrayList<KeyWord>(1);
+                r.add(x);
+                return r;
+            }
+            return emptySearch;
         }
 
-        @Override
-        protected KeyWord create() {
-            return new KeyWordE();
-        }
-    }
+        final String ql = kw instanceof KeyWordE
+                ? "from /E where K==? & I<=?"
+                : "from /N where K==? & I<=?";
+        final Class rclass = kw instanceof KeyWordE ? KeyWordE.class : KeyWordN.class;
 
-    private static final class Index2KeyWordNIterable extends Index2KeyWordIterable {
+        return new Iterable<KeyWord>() {
+            @Override
+            public Iterator<KeyWord> iterator() {
 
-        public Index2KeyWordNIterable(Iterable<Object> findex,
-                Box box, KeyWord kw, KeyWord con, boolean asWord, MaxID maxId) {
-            super(findex, box, kw, con, asWord, maxId);
-        }
+                return new EngineIterator<KeyWord>() {
+                    long currentMaxId = Long.MAX_VALUE;
+                    KeyWord cache = null;
+                    Iterator<KeyWord> iter = null;
 
-        @Override
-        protected KeyWord create() {
-            return new KeyWordN();
-        }
-
-    }
-
-    private static abstract class Index2KeyWordIterable
-            implements Iterable<KeyWord> {
-
-        final Iterator<KeyWord> iterator;
-        Iterator<Object[]> index;
-
-        protected Index2KeyWordIterable(final Iterable<Object> findex,
-                final Box box, final KeyWord kw, final KeyWord con, final boolean asWord, final MaxID maxId) {
-            this.index = (Iterator<Object[]>) (Object) findex.iterator();
-            this.iterator = new EngineIterator<KeyWord>() {
-                long currentMaxId = maxId.id;
-                KeyWord cache;
-
-                @Override
-                public boolean hasNext() {
-                    if (maxId.id == -1) {
-                        return false;
-                    }
-                    if (con != null) {
-                        if (con.I != maxId.id) {
+                    @Override
+                    public boolean hasNext() {
+                        if (maxId.id == -1) {
                             return false;
                         }
-                    }
-
-                    if (currentMaxId > (maxId.id + 1) && currentMaxId != Long.MAX_VALUE) {
-                        currentMaxId = maxId.id;
-
-                        Iterable<KeyWord> tmp = search(box, kw, con, asWord, maxId);
-                        if (tmp instanceof Index2KeyWordIterable) {
-                            index = ((Index2KeyWordIterable) tmp).index;
-                        }
-                    }
-
-                    if (index.hasNext()) {
                         if (--maxId.maxTime < 0) {
                             maxId.id = -1;
                             return false;
                         }
-                        Object[] os = index.next();
 
-                        long osid = (Long) os[1];
-                        maxId.id = osid;
-                        currentMaxId = maxId.id;
-
-                        if (con != null) {
-                            if (con.I != maxId.id) {
-                                return false;
-                            }
+                        if (currentMaxId > (maxId.id + 1)) {
+                            currentMaxId = maxId.id;
+                            iter = box.select(rclass, ql, kw.getKeyWord(), maxId.id).iterator();
                         }
 
-                        cache = create();
-                        cache.setKeyWord(os[0]);
-                        cache.I = (Long) os[1];
-                        cache.P = (Integer) os[2];
+                        if (iter.hasNext()) {
 
-                        return true;
+                            cache = iter.next();
+
+                            maxId.id = cache.getID();
+                            currentMaxId = maxId.id;
+
+                            if (con != null && con.I != maxId.id) {
+                                return false;
+                            }
+
+                            return true;
+                        }
+                        maxId.id = -1;
+                        return false;
                     }
-                    maxId.id = -1;
-                    return false;
-                }
 
-                @Override
-                public KeyWord next() {
-                    return cache;
-                }
-            };
-        }
+                    @Override
+                    public KeyWord next() {
+                        return cache;
+                    }
 
-        @Override
-        public Iterator<KeyWord> iterator() {
-            return iterator;
-        }
+                };
+            }
 
-        protected abstract KeyWord create();
+        };
 
     }
 
@@ -459,4 +383,23 @@ public class Engine {
         }
 
     }
+
+    private static Iterable<KeyWord> lessMatch(Box box, KeyWord kw) {
+        if (kw instanceof KeyWordE) {
+            return (Iterable<KeyWord>) (Object) box.select(KeyWordE.class, "from /E where K<=? limit 0, 50", kw.getKeyWord());
+
+        } else {
+            return (Iterable<KeyWord>) (Object) box.select(KeyWordN.class, "from /N where K<=? limit 0, 50", kw.getKeyWord());
+        }
+    }
+
+    public static final class MaxID {
+
+        public MaxID(long maxSearchTime) {
+            maxTime = maxSearchTime;
+        }
+        protected long id = Long.MAX_VALUE;
+        public long maxTime;
+    }
+
 }
