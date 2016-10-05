@@ -12,6 +12,7 @@ import java.io.RandomAccessFile;
 import java.nio.Buffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,9 +25,9 @@ public class MainClass {
 
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
-        test1();
+        //test1();
         //test_big_n();
-        //test_big_e();
+        test_big_e();
 
         //test_order();
     }
@@ -172,11 +173,11 @@ public class MainClass {
     public static void test_big_n() throws FileNotFoundException, IOException, InterruptedException {
         String book = "/hero.txt";
         long dbid = 1;
-        boolean rebuild = false;
+        boolean rebuild = true;
         int istran = 0;
         String split = "。";
         String strkw = "黄蓉 郭靖 洪七公";
-        //strkw = "黄蓉 郭靖 公";
+        strkw = "黄蓉 郭靖 公";
         //strkw = "郭靖 黄蓉";
         //strkw = "黄蓉";
         //strkw = "时察";
@@ -189,12 +190,15 @@ public class MainClass {
     public static void test_big_e() throws FileNotFoundException, IOException, InterruptedException {
         String book = "/phoenix.txt";
         long dbid = 2;
-        boolean rebuild = true;
+        boolean rebuild = false;
         int istran = 10;
         String split = "\\.";
         String strkw = "Harry";
-        strkw = "Harry Philosopher";
+        //strkw = "Harry Philosopher";
         //strkw = "Philosopher";
+        //strkw = "\"Harry Philosopher\"";
+        //strkw = "\"He looks\"";
+        strkw = "He";
         test_big(book, dbid, rebuild, split, strkw, istran);
     }
 
@@ -254,6 +258,7 @@ public class MainClass {
             System.out.println("Index " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + rbcount.get());
         }
 
+        HashSet<Long> items = new HashSet<Long>();
         int c;
         for (int i = 0; i < 20; i++) {
             begin = System.currentTimeMillis();
@@ -264,6 +269,7 @@ public class MainClass {
                     c++;
                     //System.out.println(engine.getDesc(ts[0], kw, 15));
                     //System.out.println(kw.toFullString());
+                    items.add(kw.getID());
                 }
             }
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
@@ -274,22 +280,48 @@ public class MainClass {
         }
         strkw = strkw.toLowerCase();
         String[] kws = strkw.split(" ");
+        if (strkw.startsWith("\"")) {
+            kws = new String[]{strkw.substring(1, strkw.length() - 1)};
+        }
         StringUtil sutil = new StringUtil();
-
+        System.out.println(strkw + " " + items.size());
         begin = System.currentTimeMillis();
         c = 0;
+
         Test:
         for (int i = 0; i < ts.length; i++) {
+            ts[i] = " " + new String(sutil.clear(ts[i])) + " ";
             for (int j = 0; j < kws.length; j++) {
-                int p = ts[i].indexOf(kws[j]);
-                if (p < 0) {
-                    continue Test;
+                int p = 0;
+                Test_P:
+                while (p >= 0) {
+                    p = ts[i].indexOf(kws[j], p+1);
+                    if (p < 0) {
+                        continue Test;
+                    }
+                    char pc = ts[i].charAt(p + kws[j].length());
+                    if (pc >= 'a' && pc <= 'z') {
+                        //System.out.println(pc);
+                        continue Test_P;
+                    }
+                    if (pc == '-') {
+                        continue Test_P;
+                    }
+
+                    if (p > 0) {
+                        pc = ts[i].charAt(p - 1);
+                        if (pc >= 'a' && pc <= 'z') {
+                            //System.out.println(pc);
+                            continue Test_P;
+                        }
+                        if (pc == '-') {
+                            System.out.println(ts[i]);
+                            continue Test_P;
+                        }
+                    }
+                    break;
                 }
-                char pc = ts[i].charAt(p + kws[j].length());
-                if (sutil.isWord(pc)) {
-                    //System.out.println(pc);
-                    continue Test;
-                }
+
             }
             c++;
         }

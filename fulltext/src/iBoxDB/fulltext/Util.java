@@ -3,7 +3,7 @@ package iBoxDB.fulltext;
 
 import java.util.*;
 
-class Util {
+public class Util {
 
     final StringUtil sUtil = new StringUtil();
 

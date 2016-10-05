@@ -24,9 +24,8 @@ public class Engine {
         char[] cs = sUtil.clear(str);
         ArrayList<KeyWord> map = util.fromString(id, cs, true);
 
-        HashSet<String> words = new HashSet<String>();
         for (KeyWord kw : map) {
-            insertToBox(box, kw, words, isRemove);
+            insertToBox(box, kw, isRemove);
             itCount++;
         }
 
@@ -42,7 +41,6 @@ public class Engine {
         char[] cs = sUtil.clear(str);
         ArrayList<KeyWord> map = util.fromString(id, cs, true);
 
-        HashSet<String> words = new HashSet<String>();
         Box box = null;
         int ccount = 0;
         for (KeyWord kw : map) {
@@ -50,7 +48,7 @@ public class Engine {
                 box = auto.cube();
                 ccount = commitCount;
             }
-            insertToBox(box, kw, words, isRemove);
+            insertToBox(box, kw, isRemove);
             itCount++;
             if (--ccount < 1) {
                 box.commit().Assert();
@@ -63,13 +61,9 @@ public class Engine {
         return itCount;
     }
 
-    private void insertToBox(Box box, KeyWord kw, HashSet<String> insertedWords, boolean isRemove) {
+    private void insertToBox(Box box, KeyWord kw, boolean isRemove) {
         Binder binder;
         if (kw instanceof KeyWordE) {
-            if (insertedWords.contains(kw.getKeyWord().toString())) {
-                return;
-            }
-            insertedWords.add(kw.getKeyWord().toString());
             binder = box.d("/E", kw.getKeyWord(), kw.getID(), kw.getPosition());
         } else {
             binder = box.d("/N", kw.getKeyWord(), kw.getID(), kw.getPosition());
@@ -229,16 +223,21 @@ public class Engine {
                         }
                         while (cd.hasNext()) {
                             r1_con = cd.next();
-                            if (!nw.isLinked) {
-                                if (r1_id == r1_con.getID()) {
-                                    continue;
-                                }
+
+                            if (r1_id == r1_con.getID()) {
+                                continue;
                             }
-                            r1_id = r1_con.getID();
+                            if (!nw.isLinked) {
+                                r1_id = r1_con.getID();
+                            }
                             r1 = search(box, nw, r1_con, maxId).iterator();
                             if (r1.hasNext()) {
+                                if (nw.isLinked) {
+                                    r1_id = r1_con.getID();
+                                }
                                 return true;
                             }
+
                         }
                         return false;
                     }
@@ -260,57 +259,15 @@ public class Engine {
 
     private static Iterable<KeyWord> search(final Box box,
             final KeyWord kw, final KeyWord con, final Engine.MaxID maxId) {
-        if (con != null && kw.isLinked) {
-
-            int offset;
-            String table;
-            Class<?> aclass;
-            if (kw instanceof KeyWordE) {
-                offset = 1;
-                table = "/E";
-                aclass = KeyWordE.class;
-            } else {
-                offset = 0;
-                table = "/N";
-                aclass = KeyWordN.class;
-            }
-            final KeyWord x = (KeyWord) box.d(table, kw.getKeyWord(),
-                    con.getID(), (con.getPosition() + con.size() + offset))
-                    .select(aclass);
-            if (x != null) {
-                return new Iterable<KeyWord>() {
-                    @Override
-                    public Iterator<KeyWord> iterator() {
-                        return new EngineIterator<KeyWord>() {
-                            boolean hasNext = true;
-
-                            @Override
-                            public boolean hasNext() {
-                                if (hasNext) {
-                                    hasNext = false;
-                                    return true;
-                                }
-                                return false;
-                            }
-
-                            @Override
-                            public KeyWord next() {
-                                return x;
-                            }
-
-                        };
-                    }
-                ;
-            }
-            ;}
-            return emptySearch;
-        }
 
         final String ql = kw instanceof KeyWordE
                 ? "from /E where K==? & I<=?"
                 : "from /N where K==? & I<=?";
+
         final Class rclass = kw instanceof KeyWordE ? KeyWordE.class : KeyWordN.class;
 
+        final int linkPos = kw.isLinked ? (con.getPosition() + con.size()
+                + (kw instanceof KeyWordE ? 1 : 0)) : -1;
         return new Iterable<KeyWord>() {
             @Override
             public Iterator<KeyWord> iterator() {
@@ -319,14 +276,11 @@ public class Engine {
                     long currentMaxId = Long.MAX_VALUE;
                     KeyWord cache = null;
                     Iterator<KeyWord> iter = null;
+                    boolean linkedEnd = false;
 
                     @Override
                     public boolean hasNext() {
-                        if (maxId.id == -1) {
-                            return false;
-                        }
-                        if (--maxId.maxTime < 0) {
-                            maxId.id = -1;
+                        if (maxId.id == -1 || linkedEnd) {
                             return false;
                         }
 
@@ -335,8 +289,11 @@ public class Engine {
                             iter = box.select(rclass, ql, kw.getKeyWord(), maxId.id).iterator();
                         }
 
-                        if (iter.hasNext()) {
-
+                        while (iter.hasNext()) {
+                            if (--maxId.maxTime < 0) {
+                                maxId.id = -1;
+                                return false;
+                            }
                             cache = iter.next();
 
                             maxId.id = cache.getID();
@@ -344,6 +301,13 @@ public class Engine {
 
                             if (con != null && con.I != maxId.id) {
                                 return false;
+                            }
+
+                            if (linkPos != -1) {
+                                if (cache.getPosition() != linkPos) {
+                                    continue;
+                                }
+                                linkedEnd = true;
                             }
 
                             return true;
