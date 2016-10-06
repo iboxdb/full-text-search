@@ -24,6 +24,11 @@ public class Util {
 
             } else if (sUtil.isWord(c)) {
                 if (c == '"') {
+                    if (k != null) {
+                        kws.add(k);
+                    }
+                    k = null;
+                    
                     if (linkedCount > 0) {
                         linkedCount = 0;
                     } else {

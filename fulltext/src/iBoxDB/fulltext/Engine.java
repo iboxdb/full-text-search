@@ -9,8 +9,6 @@ public class Engine {
     final Util util = new Util();
     final StringUtil sUtil = new StringUtil();
 
-    public long maxSearchTime = Long.MAX_VALUE;
-
     public void Config(DatabaseConfig config) {
         KeyWord.config(config);
     }
@@ -188,7 +186,7 @@ public class Engine {
             return new ArrayList();
         }
 
-        final MaxID maxId = new MaxID(this.maxSearchTime);
+        final MaxID maxId = new MaxID();
         maxId.id = startId;
         return search(box, map.toArray(new KeyWord[0]), maxId);
     }
@@ -232,9 +230,6 @@ public class Engine {
                             }
                             r1 = search(box, nw, r1_con, maxId).iterator();
                             if (r1.hasNext()) {
-                                if (nw.isLinked) {
-                                    r1_id = r1_con.getID();
-                                }
                                 return true;
                             }
 
@@ -255,8 +250,6 @@ public class Engine {
 
     }
 
-    private static final Iterable<KeyWord> emptySearch = new ArrayList();
-
     private static Iterable<KeyWord> search(final Box box,
             final KeyWord kw, final KeyWord con, final Engine.MaxID maxId) {
 
@@ -268,6 +261,7 @@ public class Engine {
 
         final int linkPos = kw.isLinked ? (con.getPosition() + con.size()
                 + (kw instanceof KeyWordE ? 1 : 0)) : -1;
+
         return new Iterable<KeyWord>() {
             @Override
             public Iterator<KeyWord> iterator() {
@@ -276,11 +270,10 @@ public class Engine {
                     long currentMaxId = Long.MAX_VALUE;
                     KeyWord cache = null;
                     Iterator<KeyWord> iter = null;
-                    boolean linkedEnd = false;
 
                     @Override
                     public boolean hasNext() {
-                        if (maxId.id == -1 || linkedEnd) {
+                        if (maxId.id == -1) {
                             return false;
                         }
 
@@ -290,30 +283,32 @@ public class Engine {
                         }
 
                         while (iter.hasNext()) {
-                            if (--maxId.maxTime < 0) {
-                                maxId.id = -1;
-                                return false;
-                            }
+
                             cache = iter.next();
 
                             maxId.id = cache.getID();
                             currentMaxId = maxId.id;
-
                             if (con != null && con.I != maxId.id) {
                                 return false;
                             }
 
-                            if (linkPos != -1) {
-                                if (cache.getPosition() != linkPos) {
-                                    continue;
-                                }
-                                linkedEnd = true;
+                            if (linkPos == -1) {
+                                return true;
                             }
 
-                            return true;
+                            int cpos = cache.getPosition();
+                            if (cpos > linkPos) {
+                                continue;
+                            }
+                            if (cpos == linkPos) {
+                                return true;
+                            }
+                            return false;
                         }
+
                         maxId.id = -1;
                         return false;
+
                     }
 
                     @Override
@@ -348,11 +343,8 @@ public class Engine {
 
     public static final class MaxID {
 
-        public MaxID(long maxSearchTime) {
-            maxTime = maxSearchTime;
-        }
         protected long id = Long.MAX_VALUE;
-        public long maxTime;
+
     }
 
 }

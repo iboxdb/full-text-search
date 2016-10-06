@@ -127,7 +127,21 @@ public class MainClass {
             + "버전(변경 이력 혹은 수정 내용)을 관리하는 것은 매우 현명하다. VCS를 사용하면 각 파일을 이전 상태로 되돌릴 수 있고,"
             + "프로젝트를 통째로 이전 is 상태로 되돌릴 수 있고, 시간에 따라 수정 내용을 비교해 볼 수 있고,"
             + "누가 문제를 일으켰는지도 추적할 수 있고, 누가 언제 만들어낸 이슈인지도 알 수 있다. VCS를 사용하면 파일을 잃어버리거나"
-            + "잘못 고쳤을 때도 쉽게 복구할 수 있다. HAS GIT 이런 모든 장점을 큰 노력 없이 이용할 수 있다."
+            + "잘못 고쳤을 때도 쉽게 복구할 수 있다. HAS GIT 이런 모든 장점을 큰 노력 없이 이용할 수 있다.",
+            //ID=6
+            "  and yet  he thought  as they joined the queue lining up outside snape s classroom door  "
+            + "she had chosen to come and talk to him  hadn t she  she had been cedric s girlfriend  "
+            + "she could easily have hated harry for coming out of the triwizard maze alive when cedric "
+            + "had died  yet she was talking to him in a perfectly friendly way  not as though "
+            + "she thought him mad  or a liar  or in some horrible way responsible for cedric s death      \n",
+            //ID = 7
+            "  \"if these things are important enough to pass on right under the nose of the   ministry  "
+            + "you'd think he'd have left us know why ­ unless he thought it was obvious \"     \"thought "
+            + "wrong  then  didn t he \" said ron     \n",
+            //ID = 8
+            "as he drove toward town he thought of nothing except a large order of drills "
+            + "he was hoping to get that day  "
+
         };
 
         for (int tran = 0; tran < 2; tran++) {
@@ -198,7 +212,10 @@ public class MainClass {
         //strkw = "Philosopher";
         //strkw = "\"Harry Philosopher\"";
         //strkw = "\"He looks\"";
-        strkw = "He";
+        //strkw = "\"he drove toward town he thought\"";
+        //strkw = "\"he drove toward town he\"";
+        //strkw = "\"he thought\"";
+        //strkw = "He";
         test_big(book, dbid, rebuild, split, strkw, istran);
     }
 
@@ -275,58 +292,74 @@ public class MainClass {
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
         }
 
+        StringUtil sutil = new StringUtil();
         for (int i = 0; i < ts.length; i++) {
             ts[i] = ts[i].toLowerCase() + " ";
+            ts[i] = " " + new String(sutil.clear(ts[i])) + " ";
         }
         strkw = strkw.toLowerCase();
         String[] kws = strkw.split(" ");
         if (strkw.startsWith("\"")) {
             kws = new String[]{strkw.substring(1, strkw.length() - 1)};
         }
-        StringUtil sutil = new StringUtil();
+
         System.out.println(strkw + " " + items.size());
         begin = System.currentTimeMillis();
         c = 0;
 
         Test:
         for (int i = 0; i < ts.length; i++) {
-            ts[i] = " " + new String(sutil.clear(ts[i])) + " ";
+
             for (int j = 0; j < kws.length; j++) {
                 int p = 0;
                 Test_P:
                 while (p >= 0) {
-                    p = ts[i].indexOf(kws[j], p+1);
+                    p = ts[i].indexOf(kws[j], p + 1);
                     if (p < 0) {
                         continue Test;
                     }
-                    char pc = ts[i].charAt(p + kws[j].length());
-                    if (pc >= 'a' && pc <= 'z') {
-                        //System.out.println(pc);
+                    if (onlyPart(ts[i], kws[j], p)) {
                         continue Test_P;
-                    }
-                    if (pc == '-') {
-                        continue Test_P;
-                    }
-
-                    if (p > 0) {
-                        pc = ts[i].charAt(p - 1);
-                        if (pc >= 'a' && pc <= 'z') {
-                            //System.out.println(pc);
-                            continue Test_P;
-                        }
-                        if (pc == '-') {
-                            System.out.println(ts[i]);
-                            continue Test_P;
-                        }
                     }
                     break;
                 }
-
             }
             c++;
+
+            if (!items.contains((long) i)) {
+                System.out.println(ts[i]);
+                System.out.println();
+            }
+
         }
         System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + ts.length);
 
+    }
+
+    private static boolean onlyPart(String str, String wd, int p) {
+        char pc = str.charAt(p + wd.length());
+        if (pc >= 'a' && pc <= 'z') {
+            return true;
+        }
+        if (pc == '-') {
+            return true;
+        }
+
+        int bef = p;
+        Test:
+        while (bef > 0) {
+            pc = str.charAt(bef - 1);
+            if (pc >= 'a' && pc <= 'z') {
+                return true;
+            }
+            if (pc == '-') {
+                bef--;
+                continue Test;
+            }
+            break;
+        }
+
+        return false;
     }
 
 }
