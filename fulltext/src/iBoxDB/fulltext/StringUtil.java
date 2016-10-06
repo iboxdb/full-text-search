@@ -90,12 +90,15 @@ public class StringUtil {
             return true;
         }
         //special
-        return c == '-' || c == '#' || c == '"';
+        return c == '-' || c == '#';
     }
 
     public char[] clear(String str) {
         char[] cs = (str + "   ").toLowerCase().toCharArray();
         for (int i = 0; i < cs.length; i++) {
+            if (cs[i] == '"') {
+                continue;
+            }
             if (set.contains(cs[i])) {
                 cs[i] = ' ';
             }

@@ -214,7 +214,8 @@ public class MainClass {
         //strkw = "\"He looks\"";
         //strkw = "\"he drove toward town he thought\"";
         //strkw = "\"he drove toward town he\"";
-        //strkw = "\"he thought\"";
+        strkw = "\"he thought\"";
+        strkw = "he thought";
         //strkw = "He";
         test_big(book, dbid, rebuild, split, strkw, istran);
     }
@@ -286,7 +287,7 @@ public class MainClass {
                     c++;
                     //System.out.println(engine.getDesc(ts[0], kw, 15));
                     //System.out.println(kw.toFullString());
-                    items.add(kw.getID());
+                    //items.add(kw.getID());
                 }
             }
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
@@ -325,12 +326,12 @@ public class MainClass {
                 }
             }
             c++;
-
+            /*
             if (!items.contains((long) i)) {
                 System.out.println(ts[i]);
                 System.out.println();
             }
-
+             */
         }
         System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + ts.length);
 

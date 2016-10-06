@@ -22,20 +22,18 @@ public class Util {
                 }
                 k = null;
 
-            } else if (sUtil.isWord(c)) {
-                if (c == '"') {
-                    if (k != null) {
-                        kws.add(k);
-                    }
-                    k = null;
-                    
-                    if (linkedCount > 0) {
-                        linkedCount = 0;
-                    } else {
-                        linkedCount = 1;
-                    }
-                    continue;
+            } else if (c == '"') {
+                if (k != null) {
+                    kws.add(k);
                 }
+                k = null;
+
+                if (linkedCount > 0) {
+                    linkedCount = 0;
+                } else {
+                    linkedCount = 1;
+                }
+            } else if (sUtil.isWord(c)) {
                 if (k == null && c != '-' && c != '#') {
                     k = new KeyWordE();
                     k.setID(id);
