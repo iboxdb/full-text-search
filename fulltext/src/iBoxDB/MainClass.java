@@ -208,14 +208,18 @@ public class MainClass {
         int istran = 10;
         String split = "\\.";
         String strkw = "Harry";
-        //strkw = "Harry Philosopher";
-        //strkw = "Philosopher";
-        //strkw = "\"Harry Philosopher\"";
-        //strkw = "\"He looks\"";
-        //strkw = "\"he drove toward town he thought\"";
+        strkw = "Harry Philosopher";
+        strkw = "Philosopher";
+        strkw = "\"Harry Philosopher\"";
+        strkw = "\"He looks\"";
+        strkw = "He looks";
+        strkw = "\"he drove toward town he thought\"";
         //strkw = "\"he drove toward town he\"";
-        strkw = "\"he thought\"";
+        //strkw = "\"he thought\"";
+        strkw = "\"he thought\" toward";
+        strkw = "toward \"he thought\"";
         strkw = "he thought";
+        strkw = "he thought toward";
         //strkw = "He";
         test_big(book, dbid, rebuild, split, strkw, istran);
     }
@@ -299,9 +303,29 @@ public class MainClass {
             ts[i] = " " + new String(sutil.clear(ts[i])) + " ";
         }
         strkw = strkw.toLowerCase();
+
         String[] kws = strkw.split(" ");
-        if (strkw.startsWith("\"")) {
-            kws = new String[]{strkw.substring(1, strkw.length() - 1)};
+        String tmp_kws = null;
+        for (int i = 0; i < kws.length; i++) {
+            if (kws[i].length() < 1) {
+                kws[i] = null;
+                continue;
+            }
+            if (tmp_kws == null) {
+                if (kws[i].startsWith("\"")) {
+                    tmp_kws = kws[i];
+                    kws[i] = null;
+                }
+            } else if (tmp_kws != null) {
+                tmp_kws += (" " + kws[i]);
+
+                if (kws[i].endsWith("\"")) {
+                    kws[i] = tmp_kws.substring(1, tmp_kws.length() - 1);
+                    tmp_kws = null;
+                } else {
+                    kws[i] = null;
+                }
+            }
         }
 
         System.out.println(strkw + " " + items.size());
@@ -312,6 +336,9 @@ public class MainClass {
         for (int i = 0; i < ts.length; i++) {
 
             for (int j = 0; j < kws.length; j++) {
+                if (kws[j] == null) {
+                    continue;
+                }
                 int p = 0;
                 Test_P:
                 while (p >= 0) {

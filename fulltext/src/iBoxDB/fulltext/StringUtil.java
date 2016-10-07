@@ -1,43 +1,10 @@
 package iBoxDB.fulltext;
 
-import iBoxDB.LocalServer.NotColumn;
 import java.util.*;
 
 public class StringUtil {
 
-    protected static HashMap<String, String> correctKW = new HashMap<String, String>() {
-        {
-            put("databae", "database");
-            put("beby", "baby");
-            put("androd", "android");
-            put("canguan", "餐馆");
-            put("meishi", "美食");
-        }
-    };
-
-    protected static HashMap<String, String> antetypes = new HashMap<String, String>() {
-        {
-            put("dogs", "dog");
-            put("houses", "house");
-            put("grams", "gram");
-
-            put("kisses", "kiss");
-            put("watches", "watch");
-            put("boxes", "box");
-            put("bushes", "bush");
-
-            put("tomatoes", "tomato");
-            put("potatoes", "potato");
-
-            put("babies", "baby");
-            put("universities", "university");
-            put("flies", "fly");
-            put("impurities", "impurity");
-        }
-    };
-
     HashSet<Character> set;
-    public HashSet<String> mvends;
 
     public StringUtil() {
         String s = "!\"@$%&'()*+,./:;<=>?[\\]^_`{|}~\r\n"; //@-
@@ -56,18 +23,6 @@ public class StringUtil {
         }
         set.add((char) 0);
 
-        String[] ms = new String[]{
-            "are", "were", "have", "has", "had",
-            "you", "she", "her", "him", "like", "will", "would", "should",
-            "when", "than", "then", "that", "this", "there", "who", "those", "these",
-            "with", "which", "where", "they", "them", "one",
-            "does", "doesn", "did", "gave", "give",
-            "something", "someone", "about", "come"
-        };
-        mvends = new HashSet<String>();
-        for (String c : ms) {
-            mvends.add(c);
-        }
     }
 
     //Chinese  [\u2E80-\u9fa5]
@@ -106,6 +61,97 @@ public class StringUtil {
         return cs;
     }
 
+    public ArrayList<KeyWord> fromString(long id, char[] str, boolean forIndex) {
+
+        ArrayList<KeyWord> kws = new ArrayList<KeyWord>();
+
+        KeyWordE k = null;
+        int linkedCount = 0;
+        int lastNPos = -2;
+        for (int i = 0; i < str.length; i++) {
+            char c = str[i];
+            if (c == ' ') {
+                if (k != null) {
+                    kws.add(k);
+                }
+                k = null;
+
+            } else if (c == '"') {
+                if (k != null) {
+                    kws.add(k);
+                }
+                k = null;
+
+                if (linkedCount > 0) {
+                    linkedCount = 0;
+                    setLinkEnd(kws);
+                } else {
+                    linkedCount = 1;
+                }
+            } else if (isWord(c)) {
+                if (k == null && c != '-' && c != '#') {
+                    k = new KeyWordE();
+                    k.setID(id);
+                    k.setKeyWord("");
+                    k.setPosition(i);
+                    if (linkedCount > 0) {
+                        linkedCount++;
+                    }
+                    if (linkedCount > 2) {
+                        k.isLinked = true;
+                    }
+                }
+                if (k != null) {
+                    k.setKeyWord(k.getKeyWord() + Character.toString(c));
+                }
+            } else {
+                if (k != null) {
+                    kws.add(k);
+                }
+                k = null;
+
+                KeyWordN n = new KeyWordN();
+                n.setID(id);
+                n.setPosition(i);
+                n.longKeyWord(c, (char) 0, (char) 0);
+                n.isLinked = i == (lastNPos + 1);
+                kws.add(n);
+
+                char c1 = str[i + 1];
+                if ((c1 != ' ') && (!isWord(c1))) {
+                    n = new KeyWordN();
+                    n.setID(id);
+                    n.setPosition(i);
+                    n.longKeyWord(c, c1, (char) 0);
+                    n.isLinked = i == (lastNPos + 1);
+                    kws.add(n);
+                    if (!forIndex) {
+                        kws.remove(kws.size() - 2);
+                        i++;
+                    }
+                }
+
+                if (c1 == ' ') {
+                    setLinkEnd(kws);
+                }
+
+                lastNPos = i;
+
+            }
+        }
+        setLinkEnd(kws);
+        return kws;
+    }
+
+    private void setLinkEnd(ArrayList<KeyWord> kws) {
+        if (kws.size() > 1) {
+            KeyWord last = kws.get(kws.size() - 1);
+            if (last.isLinked) {
+                last.isLinkedEnd = true;
+            }
+        }
+    }
+
     public String getDesc(String str, KeyWord kw, int length) {
         ArrayList<KeyWord> list = new ArrayList<KeyWord>();
         while (kw != null) {
@@ -141,49 +187,6 @@ public class StringUtil {
         }
         return sb.toString();
 
-    }
-
-    public void correctInput(ArrayList<KeyWord> kws) {
-
-        for (int i = 0; i < kws.size(); i++) {
-            KeyWord kw = (KeyWord) kws.get(i);
-            if (kw instanceof KeyWordE) {
-                String str = kw.getKeyWord().toString();
-                str = correctKW.get(str);
-                if (str != null) {
-                    if (isWord(str.charAt(0))) {
-                        kw.setKeyWord(str);
-                    } else {
-                        KeyWordN kwn = new KeyWordN();
-                        kwn.I = kw.I;
-                        kwn.P = kw.P;
-                        switch (str.length()) {
-                            case 1:
-                                kwn.longKeyWord(str.charAt(0), (char) 0, (char) 0);
-                                break;
-                            case 2:
-                                kwn.longKeyWord(str.charAt(0), str.charAt(1), (char) 0);
-                                break;
-                            default:
-                                continue;
-                        }
-                        kws.set(i, kwn);
-                    }
-                }
-            }
-        }
-    }
-
-    public KeyWordE __getOriginalForm(KeyWordE src) {
-        String of = antetypes.get(src.K);
-        if (of != null) {
-            KeyWordE e = new KeyWordE();
-            e.I = src.I;
-            e.P = src.P;
-            e.K = of;
-            return e;
-        }
-        return null;
     }
 
 }

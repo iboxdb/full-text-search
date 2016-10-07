@@ -6,7 +6,6 @@ import java.util.*;
 
 public class Engine {
 
-    final Util util = new Util();
     final StringUtil sUtil = new StringUtil();
 
     public void Config(DatabaseConfig config) {
@@ -20,7 +19,7 @@ public class Engine {
         }
         long itCount = 0;
         char[] cs = sUtil.clear(str);
-        ArrayList<KeyWord> map = util.fromString(id, cs, true);
+        ArrayList<KeyWord> map = sUtil.fromString(id, cs, true);
 
         for (KeyWord kw : map) {
             insertToBox(box, kw, isRemove);
@@ -37,7 +36,7 @@ public class Engine {
         }
         long itCount = 0;
         char[] cs = sUtil.clear(str);
-        ArrayList<KeyWord> map = util.fromString(id, cs, true);
+        ArrayList<KeyWord> map = sUtil.fromString(id, cs, true);
 
         Box box = null;
         int ccount = 0;
@@ -88,7 +87,7 @@ public class Engine {
             kw.setKeyWord(new String(cs));
             for (KeyWord tkw : lessMatch(box, kw)) {
                 String str = tkw.getKeyWord().toString();
-                if (str.length() < 3 || sUtil.mvends.contains(str)) {
+                if (str.length() < 3) {
                     continue;
                 }
                 int c = list.size();
@@ -179,8 +178,7 @@ public class Engine {
             return new ArrayList();
         }
         char[] cs = sUtil.clear(str);
-        ArrayList<KeyWord> map = util.fromString(-1, cs, false);
-        sUtil.correctInput(map);
+        ArrayList<KeyWord> map = sUtil.fromString(-1, cs, false);
 
         if (map.size() > KeyWord.MAX_WORD_LENGTH || map.isEmpty()) {
             return new ArrayList();
@@ -228,6 +226,7 @@ public class Engine {
                             if (!nw.isLinked) {
                                 r1_id = r1_con.getID();
                             }
+
                             r1 = search(box, nw, r1_con, maxId).iterator();
                             if (r1.hasNext()) {
                                 return true;
@@ -270,6 +269,7 @@ public class Engine {
                     long currentMaxId = Long.MAX_VALUE;
                     KeyWord cache = null;
                     Iterator<KeyWord> iter = null;
+                    boolean isLinkEndMet = false;
 
                     @Override
                     public boolean hasNext() {
@@ -292,6 +292,10 @@ public class Engine {
                                 return false;
                             }
 
+                            if (isLinkEndMet) {
+                                continue;
+                            }
+
                             if (linkPos == -1) {
                                 return true;
                             }
@@ -301,6 +305,7 @@ public class Engine {
                                 continue;
                             }
                             if (cpos == linkPos) {
+                                isLinkEndMet = true;
                                 return true;
                             }
                             return false;
@@ -341,7 +346,7 @@ public class Engine {
         }
     }
 
-    public static final class MaxID {
+    static final class MaxID {
 
         protected long id = Long.MAX_VALUE;
 

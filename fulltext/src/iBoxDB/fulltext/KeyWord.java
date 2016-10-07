@@ -57,6 +57,8 @@ public abstract class KeyWord {
     public KeyWord previous;
     @NotColumn
     public boolean isLinked;
+    @NotColumn
+    public boolean isLinkedEnd;
 
     @NotColumn
     public String toFullString() {
