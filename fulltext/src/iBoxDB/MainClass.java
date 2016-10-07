@@ -208,19 +208,19 @@ public class MainClass {
         int istran = 10;
         String split = "\\.";
         String strkw = "Harry";
-        strkw = "Harry Philosopher";
-        strkw = "Philosopher";
-        strkw = "\"Harry Philosopher\"";
-        strkw = "\"He looks\"";
-        strkw = "He looks";
+        //strkw = "Harry Philosopher";
+        //strkw = "Philosopher";
+        //strkw = "\"Harry Philosopher\"";
+        //strkw = "\"He looks\"";
+        //strkw = "He looks";
         strkw = "\"he drove toward town he thought\"";
-        //strkw = "\"he drove toward town he\"";
-        //strkw = "\"he thought\"";
+        strkw = "\"he drove toward\"";
+        strkw = "\"he thought\"";
         strkw = "\"he thought\" toward";
-        strkw = "toward \"he thought\"";
+        //strkw = "toward \"he thought\"";
         strkw = "he thought";
         strkw = "he thought toward";
-        //strkw = "He";
+        strkw = "He";
         test_big(book, dbid, rebuild, split, strkw, istran);
     }
 

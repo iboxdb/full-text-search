@@ -305,7 +305,9 @@ public class Engine {
                                 continue;
                             }
                             if (cpos == linkPos) {
-                                isLinkEndMet = true;
+                                if (kw.isLinkedEnd) {
+                                    isLinkEndMet = true;
+                                }
                                 return true;
                             }
                             return false;
