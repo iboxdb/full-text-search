@@ -27,9 +27,9 @@ public class MainClass {
         DB.root("/tmp/");
         //test1();
         //test_big_n();
-        test_big_e();
+        //test_big_e();
 
-        //test_order();
+        test_order();
     }
 
     public static void test_order() {
@@ -85,7 +85,7 @@ public class MainClass {
             + "git config --global user.name \"YOUR NAME\"\n"
             + "Tell Git the email address that will be associated with your Git commits. "
             + "The email you specify should be the same one found in your email settings. "
-            + "To keep your email address hidden,"
+            + "To keep your email address hidden, 電腦上任意型態 "
             + " 关于 see \"Keeping your C# Java NoSQL email address abc@global.com private\".",
             //ID=1
             "关于版本控制\n"
@@ -168,7 +168,7 @@ public class MainClass {
             }
 
             try (Box box = auto.cube()) {
-                for (KeyWord kw : engine.search(box, "\"Java NoSQL\"")) {
+                for (KeyWord kw : engine.search(box, "\"Java NoSQL\" \"上任意\"")) {
                     System.out.println(kw.toFullString());
                     System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                     System.out.println();

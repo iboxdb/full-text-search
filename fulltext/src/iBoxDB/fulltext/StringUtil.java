@@ -22,6 +22,7 @@ public class StringUtil {
             set.add(c);
         }
         set.add((char) 0);
+        set.add((char) 8203);
 
     }
 
@@ -131,7 +132,7 @@ public class StringUtil {
                     }
                 }
 
-                if (c1 == ' ') {
+                if (c1 == ' ' || c1 == '"') {
                     setLinkEnd(kws);
                 }
 
