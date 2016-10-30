@@ -50,7 +50,7 @@ public class StringUtil {
     }
 
     public char[] clear(String str) {
-        char[] cs = (str + "   ").toLowerCase().toCharArray();
+        char[] cs = (str + "    ").toLowerCase().toCharArray();
         for (int i = 0; i < cs.length; i++) {
             if (cs[i] == '"') {
                 continue;
@@ -114,26 +114,38 @@ public class StringUtil {
                 KeyWordN n = new KeyWordN();
                 n.setID(id);
                 n.setPosition(i);
-                n.longKeyWord(c, (char) 0, (char) 0);
-                n.isLinked = i == (lastNPos + 1);
-                kws.add(n);
 
+                n.isLinked = i == (lastNPos + 1);
+
+                n.longKeyWord(c, (char) 0, (char) 0);
                 char c1 = str[i + 1];
+                char c2 = str[i + 2];
+                char c3 = str[i + 3];
+
                 if ((c1 != ' ' && c1 != '"') && (!isWord(c1))) {
-                    n = new KeyWordN();
-                    n.setID(id);
-                    n.setPosition(i);
                     n.longKeyWord(c, c1, (char) 0);
-                    n.isLinked = i == (lastNPos + 1);
-                    kws.add(n);
-                    if (!forIndex) {
-                        kws.remove(kws.size() - 2);
-                        i++;
+                    if ((c2 != ' ' && c2 != '"') && (!isWord(c2))) {
+                        n.longKeyWord(c, c1, c2);
                     }
                 }
 
-                if (c1 == ' ' || c1 == '"') {
-                    setLinkEnd(kws);
+                kws.add(n);
+                if (forIndex) {
+                } else {
+                    if ((n.size() < 3) || (c3 == ' ' || c3 == '"' || isWord(c3))) {
+                        setLinkEnd(kws);
+                    }
+                    int moveBack = 0;
+                    if (n.isLinked && n.size() < 3) {
+                        moveBack = 3 - n.size();
+                        c = str[i - moveBack + 0];
+                        c1 = str[i - moveBack + 1];
+                        c2 = str[i - moveBack + 2];
+                        n.longKeyWord(c, c1, c2);
+                    }
+                    n.moveBack = moveBack;
+                    i += (n.size() - 1);
+                    i -= moveBack;
                 }
 
                 lastNPos = i;

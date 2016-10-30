@@ -259,7 +259,7 @@ public class Engine {
         final Class rclass = kw instanceof KeyWordE ? KeyWordE.class : KeyWordN.class;
 
         final int linkPos = kw.isLinked ? (con.getPosition() + con.size()
-                + (kw instanceof KeyWordE ? 1 : 0)) : -1;
+                + (kw instanceof KeyWordE ? 1 : 0)) - kw.moveBack : -1;
 
         return new Iterable<KeyWord>() {
             @Override
@@ -279,7 +279,12 @@ public class Engine {
 
                         if (currentMaxId > (maxId.id + 1)) {
                             currentMaxId = maxId.id;
-                            iter = box.select(rclass, ql, kw.getKeyWord(), maxId.id).iterator();
+                            if (kw instanceof KeyWordN && kw.size() < 3) {
+                                iter = box.select(rclass, "from /N where K>=? & K<? & I<=?",
+                                        kw.getKeyWord(), ((KeyWordN) kw).nextKeyWord(), maxId.id).iterator();
+                            } else {
+                                iter = box.select(rclass, ql, kw.getKeyWord(), maxId.id).iterator();
+                            }
                         }
 
                         while (iter.hasNext()) {

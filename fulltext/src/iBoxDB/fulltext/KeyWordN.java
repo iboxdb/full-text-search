@@ -60,6 +60,18 @@ public final class KeyWordN extends KeyWord {
         K = k;
     }
 
+    @NotColumn
+    public long nextKeyWord() {
+        int s = size();
+        if (s == 1) {
+            return K + (1L << 32);
+        }
+        if (s == 2) {
+            return K + (1L << 16);
+        }
+        return K + 1;
+    }
+
     public String toKString() {
         return KtoString(K);
     }
@@ -67,7 +79,7 @@ public final class KeyWordN extends KeyWord {
     @NotColumn
     @Override
     public String toString() {
-        return toKString() + " Pos=" + P + ", ID=" + I + " N";
+        return toKString() + " " + super.toString() + " N";
     }
 
 }

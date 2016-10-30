@@ -59,9 +59,16 @@ public abstract class KeyWord {
     public boolean isLinked;
     @NotColumn
     public boolean isLinkedEnd;
+    @NotColumn
+    public int moveBack = 0;
 
     @NotColumn
     public String toFullString() {
         return (previous != null ? previous.toFullString() + " -> " : "") + toString();
+    }
+
+    @Override
+    public String toString() {
+        return " Pos=" + P + ", ID=" + I;// + ", End=" + isLinkedEnd + ", MB=" + moveBack;
     }
 }

@@ -32,7 +32,7 @@ public final class KeyWordE extends KeyWord {
     @NotColumn
     @Override
     public String toString() {
-        return K + " Pos=" + P + ", ID=" + I + " E";
+        return K + " " + super.toString() + " E";
     }
 
 }

@@ -26,10 +26,10 @@ public class MainClass {
         System.out.println(java.lang.Runtime.getRuntime().maxMemory());
         DB.root("/tmp/");
         //test1();
-        //test_big_n();
+        test_big_n();
         //test_big_e();
 
-        test_order();
+        //test_order();
     }
 
     public static void test_order() {
@@ -168,7 +168,7 @@ public class MainClass {
             }
 
             try (Box box = auto.cube()) {
-                for (KeyWord kw : engine.search(box, "\"Java NoSQL\" \"上任意\"")) {
+                for (KeyWord kw : engine.search(box, "控")) {
                     System.out.println(kw.toFullString());
                     System.out.println(engine.getDesc(ts[(int) kw.getID()], kw, 20));
                     System.out.println();
@@ -195,15 +195,15 @@ public class MainClass {
         strkw = "黄蓉 郭靖 公";
         strkw = "郭靖 黄蓉";
         strkw = "黄蓉";
-        strkw = "时察";
+        //strkw = "时察";
         strkw = "的";
-        strkw = "七十二路";
-        strkw = "十八掌";
-        strkw = "日日夜夜无穷无尽的";
-        strkw = "牛家村边绕 日日夜夜无穷无尽的";
-        strkw = "这几天";
-        strkw = "有 这几天";
-        strkw = "这几天 有";
+        //strkw = "七十二路";
+        //strkw = "十八掌";
+        //strkw = "日日夜夜无穷无尽的";
+        //strkw = "牛家村边绕 日日夜夜无穷无尽的";
+        //strkw = "这几天";
+        //strkw = "有 这几天";
+        //strkw = "这几天 有";
         test_big(book, dbid, rebuild, split, strkw, istran);
     }
 
@@ -287,6 +287,7 @@ public class MainClass {
         }
 
         HashSet<Long> items = new HashSet<Long>();
+        HashSet<Long> items2 = new HashSet<Long>();
         int c;
         for (int i = 0; i < 20; i++) {
             begin = System.currentTimeMillis();
@@ -297,7 +298,7 @@ public class MainClass {
                     c++;
                     //System.out.println(engine.getDesc(ts[0], kw, 15));
                     //System.out.println(kw.toFullString());
-                    //items.add(kw.getID());
+                    items.add(kw.getID());
                 }
             }
             System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0));
@@ -359,12 +360,14 @@ public class MainClass {
                 }
             }
             c++;
-            /*
-            if (!items.contains((long) i)) {
-                System.out.println(ts[i]);
-                System.out.println();
+
+            items2.add((long) i);
+        }
+
+        for (Long l : items) {
+            if (!items2.contains(l)) {
+                System.out.println(ts[l.intValue()]);
             }
-             */
         }
         System.out.println(c + " " + ((System.currentTimeMillis() - begin) / 1000.0) + " -" + ts.length);
 
