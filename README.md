@@ -1,5 +1,11 @@
 # Full Text Search
 
+This project has merged into 
+
+[FTS Web Server](https://github.com/iboxdb/ftserver)
+
+
+
 ### Config
 
 ```
@@ -27,5 +33,3 @@ try (Box box = auto.cube()) {
     }
 }
 ```
-
-[FTS Web Server](https://github.com/iboxdb/ftserver)
